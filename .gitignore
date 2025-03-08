@@ -1,0 +1,62 @@
+# .NET
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]evelopment/
+[Dd]ebug-*/ 
+[Dd]ebugPublic-*/
+[Dd]ist-*/
+bin/
+obj/
+
+# User-specific files
+.vs/
+.vscode/
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files (for Visual Studio)
+*.vsix
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# ASP.NET Scaffolding
+Scaffolding/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider
+.idea/
+
+# VS for Mac
+.vscode/
+
+# User-specific JetBrains Rider files
+.idea/
+
+# npm packages
+node_modules/
+
+# Yarn packages
+.yarn/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# ASP.NET Core
+wwwroot/
