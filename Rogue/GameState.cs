@@ -1,6 +1,8 @@
 
+using Rogue;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Security;
 public enum TerrainType
 {
     Wall = '█',
@@ -15,6 +17,7 @@ public class GameState
 {
     public TerrainType[,] Map {get;}
     public Player Player {get; set;}
+    public List<IWeapon> weapons {get; set;}
 
     public GameState()
     {

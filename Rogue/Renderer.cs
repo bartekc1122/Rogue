@@ -4,7 +4,7 @@ public class Renderer
 {
     private readonly GameState _state;
     private readonly Dictionary<Point, (char Symbol, ConsoleColor color)> _lastFrame = new();
-    private readonly List<string> _lastStats = new();
+    private readonly List<(string line, ConsoleColor color)> _lastStats = new();
     public Renderer(GameState state) => _state = state;
 
     public void Draw()
@@ -64,31 +64,43 @@ public class Renderer
     }
     public void DrawStats()
     {
-        var currentStats = new List<string>();
-        currentStats.Append($"Power: {_state.Player.Stats.Power}");
-        currentStats.Append($"Power: {_state.Player.Stats.Agility}");
-        currentStats.Append($"Power: {_state.Player.Stats.Health}");
-        currentStats.Append($"Power: {_state.Player.Stats.Luck}");
-        currentStats.Append($"Power: {_state.Player.Stats.Aggro}");
-        currentStats.Append($"Power: {_state.Player.Stats.Wisdom}");
+        var currentStats = new List<(string,ConsoleColor)>
+        {
+            ($"#############################", ConsoleColor.Green),
+            ($"Power: {_state.Player.Stats.Power}",ConsoleColor.White),
+            ($"Agility: {_state.Player.Stats.Agility}",ConsoleColor.White),
+            ($"Health: {_state.Player.Stats.Health}",ConsoleColor.White),
+            ($"Luck: {_state.Player.Stats.Luck}",ConsoleColor.White),
+            ($"Aggresion: {_state.Player.Stats.Aggro}",ConsoleColor.White),
+            ($"Wisdom: {_state.Player.Stats.Wisdom}",ConsoleColor.White),
+            ($"#############################",ConsoleColor.Green),
+        };
+
 
         var toUpdate = ToUpdateStats(currentStats);
 
         for (int i = 0; i < toUpdate.Count; i++)
         {
+            Console.ForegroundColor = toUpdate[i].color;
             Console.SetCursorPosition(Constants.MapWidth, toUpdate[i].idx);
             System.Console.Write(toUpdate[i].line);
+            Console.ResetColor();
+        }
+        _lastStats.Clear();
+        for (int i = 0; i < currentStats.Count; i++) 
+        {
+            _lastStats.Add(currentStats[i]);
         }
 
     }
-    public List<(int idx, string line)> ToUpdateStats(List<string> currentStats)
+    public List<(int idx, string line, ConsoleColor color)> ToUpdateStats(List<(string line, ConsoleColor color)> currentStats)
     {
-        var toUpdate = new List<(int, string)>();
+        var toUpdate = new List<(int inx, string line, ConsoleColor color)>();
         for (int i = 0; i < currentStats.Count; i++)
         {
-            if (!(i < _lastStats.Count) || currentStats[i] != _lastStats[i])
+            if (!(i < _lastStats.Count) || currentStats[i].line != _lastStats[i].line)
             {
-                toUpdate.Append((i, currentStats[i]));
+                toUpdate.Add((i, currentStats[i].line, currentStats[i].color));
             }
         }
         return toUpdate;
