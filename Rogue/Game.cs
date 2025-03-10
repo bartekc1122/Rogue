@@ -25,7 +25,7 @@ class Game
     private void HandleInput()
     {
         var key = Console.ReadKey(true).Key;
-        Point newPosition = _state.Player.Position;
+        Point newPosition = _state.EntityManager.GetEntityPosition(_state.Player);
         switch (key)
         {
             case ConsoleKey.W:
@@ -40,18 +40,30 @@ class Game
             case ConsoleKey.A:
                 newPosition.X--;
                 break;
-
+            case ConsoleKey.E:
+                _state.TryPickUpItem();
+                break;
+            case ConsoleKey.J:
+                _state.Player.Inventory.MoveCursor(1);
+                break;
+            case ConsoleKey.K:
+                _state.Player.Inventory.MoveCursor(-1);
+                break;
+            case ConsoleKey.T:
+                _state.TryThrowItem();
+                break;
+            case ConsoleKey.D1:
+                _state.EquipRight();
+                break;
+            case ConsoleKey.D2:
+                _state.EquipLeft();
+                break;
         }
-        Move(newPosition);
+        _state.EntityManager.MoveEntity(_state.Player, newPosition);
     }
     private bool ValidMove(Point newPosition)
     {
         return _state.Map[newPosition.Y, newPosition.X] != TerrainType.Wall;
     }
-    public void Move(Point position)
-    {
-        if(!ValidMove(position))
-            return; 
-        _state.Player.Position = position;
-    }
+
 }
