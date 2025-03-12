@@ -9,13 +9,12 @@ namespace Rogue
 {
     public class Weapon : IWeapon
     {
-        public char Symbol { get; set; }
-        public ConsoleColor Color { get; set; }
-        public string Name { get; set; }
+        public char Symbol { get; }
+        public ConsoleColor Color { get; }
+        public string Name { get; }
         public Point? Position { get; set; }
-        public bool IsTwoHanded { get; set; }
-
-        public int Damage { get; set; }
+        public bool IsTwoHanded { get; }
+        public int Damage { get; }
 
         public Weapon(string name, char symbol, ConsoleColor color, int damage, bool isTwoHanded = false)
         {
@@ -28,8 +27,11 @@ namespace Rogue
         public void ApplyOnPickUp(Player player)
         { }
         public void ApplyOnDePickUp(Player player)
-        {
-        }
+        { }
+        public void ApplyOnHanded(Player player)
+        { }
+        public void ApplyOnDeHanded(Player player)
+        { }
         public override String ToString()
         {
             return Name;
@@ -57,15 +59,23 @@ namespace Rogue
         public void ApplyOnPickUp(Player player)
         {
             _weapon.ApplyOnPickUp(player);
-            player.Stats.Luck -= 1;
         }
 
         public void ApplyOnDePickUp(Player player)
         {
             _weapon.ApplyOnDePickUp(player);
-            player.Stats.Luck += 1;
         }
 
+        public void ApplyOnHanded(Player player)
+        {
+            _weapon.ApplyOnDeHanded(player);
+            player.Stats.Luck -= 1;
+        }
+        public void ApplyOnDeHanded(Player player)
+        {
+            _weapon.ApplyOnDeHanded(player);
+            player.Stats.Luck += 1;
+        }
         public override string ToString()
         {
             return $"{_weapon.ToString()}(Cursed)";
@@ -93,12 +103,20 @@ namespace Rogue
         public void ApplyOnPickUp(Player player)
         {
             _weapon.ApplyOnPickUp(player);
-            player.Stats.Aggro += 5;
         }
 
         public void ApplyOnDePickUp(Player player)
         {
             _weapon.ApplyOnDePickUp(player);
+        }
+        public void ApplyOnHanded(Player player)
+        {
+            _weapon.ApplyOnHanded(player);
+            player.Stats.Aggro += 5;
+        }
+        public void ApplyOnDeHanded(Player player)
+        {
+            _weapon.ApplyOnDeHanded(player);
             player.Stats.Aggro -= 5;
         }
 

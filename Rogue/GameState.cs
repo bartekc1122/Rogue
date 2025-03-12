@@ -25,17 +25,22 @@ public class GameState
         Player = new Player();
         EntityManager = new EntityManager(this);
         EntityManager.AddEntity(Player, new Point(1, 1));
-        EntityManager.AddEntity(new Weapon("Sword", 't', ConsoleColor.DarkMagenta, 10), new Point(4, 4));
-        EntityManager.AddEntity(new Weapon("Bread", 'B', ConsoleColor.Yellow, 1), new Point(5, 6));
-        EntityManager.AddEntity(new Weapon("Duck", 'D', ConsoleColor.Yellow, 2), new Point(5, 6));
-        EntityManager.AddEntity(new Weapon("Double Sword", 'T', ConsoleColor.Cyan, 20, true), new Point(7, 7));
+        EntityManager.AddEntity(new Weapon("Sword", 't', ConsoleColor.DarkMagenta, 10), new Point(24, 4));
+        EntityManager.AddEntity(new Item("Bread", 'B', ConsoleColor.Yellow), new Point(5, 6));
+        EntityManager.AddEntity(new Item("Duck", 'D', ConsoleColor.Yellow), new Point(5, 6));
+        EntityManager.AddEntity(new Item("Hoe", 'H', ConsoleColor.Gray), new Point(25, 14));
+        EntityManager.AddEntity(new Weapon("Double Sword", 'T', ConsoleColor.Cyan, 20, true), new Point(37, 7));
         EntityManager.AddEntity(new Mony("Coin", 'o', ConsoleColor.Yellow, false, 1), new Point(10, 18));
-        EntityManager.AddEntity(new Mony("Golddn Coin", 'O', ConsoleColor.Yellow, false, 10), new Point(10, 10));
+        EntityManager.AddEntity(new Mony("Goldn Coin", 'O', ConsoleColor.Yellow, false, 10), new Point(10, 10));
 
         var sword = new Weapon("Sword", 't', ConsoleColor.DarkBlue, 10);
         var cursedSwod = new CursedWeapon(sword);
         var agrocusSwod = new AggroWeapon(cursedSwod);
-        EntityManager.AddEntity(agrocusSwod, new Point(1,5));
+        EntityManager.AddEntity(agrocusSwod, new Point(1, 5));
+
+        var dupa = new Weapon("Duupa", 'D', ConsoleColor.DarkRed, 50, isTwoHanded: true);
+        var przeklentadupa = new CursedWeapon(dupa);
+        EntityManager.AddEntity(przeklentadupa, new Point(8, 10));
     }
     private void InitializeMap()
     {
@@ -91,12 +96,16 @@ public class GameState
             if (Player.Hands.RightEquip(item))
             {
                 Player.Inventory.RemoveFromInventory(item);
+                item.ApplyOnHanded(Player);
                 return;
             }
         }
         var iteme = Player.Hands.RightUnequip();
         if (iteme != null)
-        { Player.Inventory.AddToInventory(iteme); }
+        {
+            Player.Inventory.AddToInventory(iteme);
+            iteme.ApplyOnDeHanded(Player);
+        }
     }
     public void EquipLeft()
     {
@@ -106,12 +115,17 @@ public class GameState
             if (Player.Hands.LeftEquip(item))
             {
                 Player.Inventory.RemoveFromInventory(item);
+                item.ApplyOnHanded(Player);
                 return;
             }
         }
         var iteme = Player.Hands.LeftUnequip();
         if (iteme != null)
-        { Player.Inventory.AddToInventory(iteme); }
+        {
+            Player.Inventory.AddToInventory(iteme);
+            iteme.ApplyOnDeHanded(Player);
+        }
+
     }
 
 }

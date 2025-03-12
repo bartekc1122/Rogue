@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Transactions;
 public class Renderer
 {
     private readonly GameState _state;
@@ -6,7 +7,7 @@ public class Renderer
     private readonly List<(string line, ConsoleColor color)> _lastStats = new();
     public Renderer(GameState state) => _state = state;
 
-    public void Draw()
+    public void DrawEntites()
     {
         var currentFrame = new Dictionary<Point, (char Symbol, ConsoleColor color)>();
 
@@ -67,43 +68,11 @@ public class Renderer
     }
     public void DrawStats()
     {
-        var currentStats = new List<(string, ConsoleColor)>
-        {
-            (new string('#', 30), ConsoleColor.Green),
-            ($"Money: {_state.Player.Stats.Money}",ConsoleColor.Yellow),
-            ($"Power: {_state.Player.Stats.Power}",ConsoleColor.White),
-            ($"Agility: {_state.Player.Stats.Agility}",ConsoleColor.White),
-            ($"Health: {_state.Player.Stats.Health}",ConsoleColor.White),
-            ($"Luck: {_state.Player.Stats.Luck}",ConsoleColor.White),
-            ($"Aggresion: {_state.Player.Stats.Aggro}",ConsoleColor.White),
-            ($"Wisdom: {_state.Player.Stats.Wisdom}",ConsoleColor.White),
-            (new string('#',30),ConsoleColor.Green),
-            ($"Inventory:",ConsoleColor.White),
-        };
-
-        for (int i = 0; i < _state.Player.Inventory.InventoryCount(); i++)
-        {
-            var item = _state.Player.Inventory.GetInventory()[i];
-            if (item == _state.Player.Inventory.GetSelectedItem())
-            {
-                currentStats.Add(("-> " + _state.Player.Inventory.GetInventory()[i].ToString(), ConsoleColor.DarkYellow));
-            }
-            else
-            {
-                currentStats.Add((_state.Player.Inventory.GetInventory()[i].ToString(), ConsoleColor.White));
-            }
-        }
-        var Right = _state.Player.Hands.Right;
-        var Left = _state.Player.Hands.Left;
-        currentStats.Add(("Right hand: " + (Right?.ToString() ?? ""), ConsoleColor.DarkGray));
-        currentStats.Add(("Left hand: " + (Left?.ToString() ?? ""), ConsoleColor.DarkGray));
-        currentStats.Add((new string('#', 30), ConsoleColor.Green));
-        var itemsOnFloor = _state.EntityManager.GetItemsAt(_state.EntityManager.GetEntityPosition(_state.Player));
-        if (itemsOnFloor.Any())
-        {
-            var itemOnFloor = itemsOnFloor.First().ToString();
-            currentStats.Add(("Pick up: " + itemOnFloor, ConsoleColor.Yellow));
-        }
+        var currentStats = new List<(string, ConsoleColor)>();
+        CurrentStatsState(currentStats);
+        CurrentInventoryState(currentStats);
+        CurrentHandsState(currentStats);
+        CurrentItemOnFloorState(currentStats);
 
         var toUpdate = ToUpdateStats(currentStats);
 
@@ -123,19 +92,72 @@ public class Renderer
     }
     public List<(int idx, string line, ConsoleColor color)> ToUpdateStats(List<(string line, ConsoleColor color)> currentStats)
     {
+        int lenghtOfLine = 40;
         var toUpdate = new List<(int inx, string line, ConsoleColor color)>();
         for (int i = 0; i < currentStats.Count; i++)
         {
             if (!(i < _lastStats.Count) || currentStats[i].line != _lastStats[i].line)
             {
-                toUpdate.Add((i, currentStats[i].line + new string(' ', 40 - currentStats[i].line.Length), currentStats[i].color));
+                toUpdate.Add((i, currentStats[i].line + new string(' ', lenghtOfLine - currentStats[i].line.Length), currentStats[i].color));
                 continue;
             }
+            // Clearing lines 
             for (int j = currentStats.Count; j < _lastStats.Count; j++)
             {
-                toUpdate.Add((j, new string(' ', 40), ConsoleColor.Black));
+                toUpdate.Add((j, new string(' ', lenghtOfLine), ConsoleColor.Black));
             }
         }
         return toUpdate;
+    }
+    public void CurrentInventoryState(List<(string, ConsoleColor)> currentStats)
+    {
+        currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
+        currentStats.Add(($"Inventory:", ConsoleColor.Magenta));
+        for (int i = 0; i < _state.Player.Inventory.InventoryCount(); i++)
+        {
+            var item = _state.Player.Inventory.GetInventory()[i];
+            if (item == _state.Player.Inventory.GetSelectedItem())
+            {
+                currentStats.Add(("-> " + item.ToString(), ConsoleColor.DarkYellow));
+            }
+            else
+            {
+                currentStats.Add((item.ToString(), item.Color));
+            }
+        }
+    }
+    public void CurrentStatsState(List<(string, ConsoleColor)> currentStats)
+    {
+        currentStats.AddRange(new[]
+        {
+            (new string('#', 20), ConsoleColor.DarkCyan),
+            ($"Money: {_state.Player.Stats.Money}",ConsoleColor.Yellow),
+            ($"Power: {_state.Player.Stats.Power}",ConsoleColor.White),
+            ($"Agility: {_state.Player.Stats.Agility}",ConsoleColor.White),
+            ($"Health: {_state.Player.Stats.Health}",ConsoleColor.White),
+            ($"Luck: {_state.Player.Stats.Luck}",ConsoleColor.White),
+            ($"Aggresion: {_state.Player.Stats.Aggro}",ConsoleColor.White),
+            ($"Wisdom: {_state.Player.Stats.Wisdom}",ConsoleColor.White),
+        });
+    }
+
+    public void CurrentHandsState(List<(string, ConsoleColor)> currentStats)
+    {
+        currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
+        var Right = _state.Player.Hands.Right;
+        var Left = _state.Player.Hands.Left;
+        currentStats.Add(("Right hand: " + (Right?.ToString() ?? ""), ConsoleColor.Cyan));
+        currentStats.Add(("Left hand: " + (Left?.ToString() ?? ""), ConsoleColor.Cyan));
+    }
+
+    public void CurrentItemOnFloorState(List<(string, ConsoleColor)> currentStats)
+    {
+        currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
+        var itemsOnFloor = _state.EntityManager.GetItemsAt(_state.EntityManager.GetEntityPosition(_state.Player));
+        if (itemsOnFloor.Any())
+        {
+            var itemOnFloor = itemsOnFloor.First().ToString();
+            currentStats.Add(("Pick up: " + itemOnFloor, ConsoleColor.Yellow));
+        }
     }
 }

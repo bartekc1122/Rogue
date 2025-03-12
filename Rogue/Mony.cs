@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Rogue
 {
-    public class Mony: IItem 
+    public class Mony : IItem
     {
         public char Symbol { get; set; }
         public ConsoleColor Color { get; set; }
         public string Name { get; set; }
         public Point? Position { get; set; }
-        public bool IsTwoHanded {get; set;}
+        public bool IsTwoHanded { get; set; }
         public int Value;
 
-        public Mony(string name, char symbol, ConsoleColor color, bool isTwoHanded =false, int value = 1)
+        public Mony(string name, char symbol, ConsoleColor color, bool isTwoHanded = false, int value = 1)
         {
             Name = name;
             Symbol = symbol;
@@ -38,5 +38,9 @@ namespace Rogue
         {
             return Name;
         }
+        public void ApplyOnHanded(Player player)
+        { }
+        public void ApplyOnDeHanded(Player player)
+        { }
     }
 }

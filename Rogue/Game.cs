@@ -9,7 +9,7 @@ class Game
         _renderer.DrawMap();
         while (true)
         {
-            _renderer.Draw();
+            _renderer.DrawEntites();
             _renderer.DrawStats();
             HandleInput();
         }
