@@ -1,3 +1,4 @@
+using System.Data;
 using System.Drawing;
 using Rogue;
 
@@ -28,5 +29,9 @@ public class Item : IItem
     public override String ToString()
     {
         return Name;
+    }
+    public IItem Clone()
+    {
+        return new Item(Name, Symbol, Color, IsTwoHanded);
     }
 }

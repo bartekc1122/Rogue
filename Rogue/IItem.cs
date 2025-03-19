@@ -17,6 +17,7 @@ namespace Rogue
         public void ApplyOnDePickUp(Player player);
         public void ApplyOnHanded(Player player);
         public void ApplyOnDeHanded(Player player);
+        public IItem Clone();
     }
 
 }

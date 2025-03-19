@@ -36,6 +36,10 @@ namespace Rogue
         {
             return Name;
         }
+        public IItem Clone()
+        {
+            return new Weapon(Name, Symbol, Color, Damage, IsTwoHanded);
+        }
     }
     public class CursedWeapon : IWeapon
     {
@@ -80,9 +84,17 @@ namespace Rogue
         {
             return $"{_weapon.ToString()}(Cursed)";
         }
+        public IItem Clone()
+        {
+            return new CursedWeapon((IWeapon)_weapon.Clone());
+        }
     }
     public class AggroWeapon : IWeapon
     {
+        public IItem Clone()
+        {
+            return new AggroWeapon((IWeapon)_weapon.Clone());
+        }
         private readonly IWeapon _weapon;
 
         public AggroWeapon(IWeapon weapon)

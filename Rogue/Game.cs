@@ -1,7 +1,9 @@
+using Rogue;
 using System.Drawing;
 class Game
 {
     private readonly GameState _state;
+    private readonly Logic _logic;
     private readonly Renderer _renderer;
     public void run()
     {
@@ -17,7 +19,17 @@ class Game
 
     public Game()
     {
-        _state = new GameState();
+        var builder = new GameStateBuilder();
+        builder.AddProcedure(new AddPathsProcedure());
+        builder.AddProcedure(new AddMainChamber(4));
+        // builder.AddProcedure(new AddRandomChamber(2));
+        // builder.AddProcedure(new AddRandomChamber(2));
+        // builder.AddProcedure(new AddRandomChamber(2));
+        // builder.AddProcedure(new AddChamberAt(4, 5, 18));
+        // builder.AddProcedure(new AddChamberAt(4, 36, 3));
+        builder.AddProcedure(new ItemsGeneration());
+        _state = builder.Build();
+        _logic = new Logic(_state);
         _renderer = new Renderer(_state);
     }
 
@@ -41,7 +53,7 @@ class Game
                 newPosition.X--;
                 break;
             case ConsoleKey.E:
-                _state.TryPickUpItem();
+                _logic.TryPickUpItem();
                 break;
             case ConsoleKey.J:
                 _state.Player.Inventory.MoveCursor(1);
@@ -50,13 +62,13 @@ class Game
                 _state.Player.Inventory.MoveCursor(-1);
                 break;
             case ConsoleKey.T:
-                _state.TryThrowItem();
+                _logic.TryThrowItem();
                 break;
             case ConsoleKey.D1:
-                _state.EquipRight();
+                _logic.EquipRight();
                 break;
             case ConsoleKey.D2:
-                _state.EquipLeft();
+                _logic.EquipLeft();
                 break;
         }
         _state.EntityManager.MoveEntity(_state.Player, newPosition);
