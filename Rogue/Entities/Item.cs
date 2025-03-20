@@ -1,6 +1,5 @@
-using System.Data;
-using System.Drawing;
 using Rogue;
+using System.Drawing;
 
 
 public class Item : IItem
@@ -30,7 +29,7 @@ public class Item : IItem
     {
         return Name;
     }
-    public IItem Clone()
+    public IEntity Clone()
     {
         return new Item(Name, Symbol, Color, IsTwoHanded);
     }

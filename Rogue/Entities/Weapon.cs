@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Rogue
 {
@@ -36,7 +31,7 @@ namespace Rogue
         {
             return Name;
         }
-        public IItem Clone()
+        public IEntity Clone()
         {
             return new Weapon(Name, Symbol, Color, Damage, IsTwoHanded);
         }
@@ -84,14 +79,14 @@ namespace Rogue
         {
             return $"{_weapon.ToString()}(Cursed)";
         }
-        public IItem Clone()
+        public IEntity Clone()
         {
             return new CursedWeapon((IWeapon)_weapon.Clone());
         }
     }
     public class AggroWeapon : IWeapon
     {
-        public IItem Clone()
+        public IEntity Clone()
         {
             return new AggroWeapon((IWeapon)_weapon.Clone());
         }

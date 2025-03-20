@@ -1,11 +1,10 @@
-using System.ComponentModel.Design;
-using System.Drawing;
 using Rogue;
+using System.Drawing;
 
 public class Player : IEntity
 {
 
-    public Point? Position {get; set;}
+    public Point? Position { get; set; }
     public char Symbol { get => '\u00B6'; }
     public ConsoleColor Color { get => ConsoleColor.Blue; }
     public Statistic Stats;
@@ -20,6 +19,10 @@ public class Player : IEntity
         Inventory = new Inventory();
         Hands = new Hands();
     }
+    public IEntity Clone()
+    {
+        return new Player();
+    }
 }
 
 public class Statistic
@@ -30,9 +33,9 @@ public class Statistic
     public int Luck { get; set; }
     public int Aggro { get; set; }
     public int Wisdom { get; set; }
-    public int Money {get; set;}
+    public int Money { get; set; }
 
-    public Statistic(int power = 10, int agility = 15, int health = 20, int luck = 1, int aggro = 3, int wisdom = 10, int money =0)
+    public Statistic(int power = 10, int agility = 15, int health = 20, int luck = 1, int aggro = 3, int wisdom = 10, int money = 0)
     {
         Power = power;
         Agility = agility;
@@ -42,5 +45,4 @@ public class Statistic
         Wisdom = wisdom;
         Money = money;
     }
-
 }

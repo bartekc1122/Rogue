@@ -1,4 +1,6 @@
+using Rogeu;
 using Rogue;
+using System.ComponentModel;
 using System.Drawing;
 class Game
 {
@@ -19,16 +21,9 @@ class Game
 
     public Game()
     {
-        var builder = new GameStateBuilder();
-        builder.AddProcedure(new AddPathsProcedure());
-        builder.AddProcedure(new AddMainChamber(4));
-        // builder.AddProcedure(new AddRandomChamber(2));
-        // builder.AddProcedure(new AddRandomChamber(2));
-        // builder.AddProcedure(new AddRandomChamber(2));
-        // builder.AddProcedure(new AddChamberAt(4, 5, 18));
-        // builder.AddProcedure(new AddChamberAt(4, 36, 3));
-        builder.AddProcedure(new ItemsGeneration());
-        _state = builder.Build();
+        DungeonBuilder dungeonBuilder = new DungeonBuilder();
+        Director.ConstructClassicDungeon(dungeonBuilder);
+        _state = dungeonBuilder.getProduct();
         _logic = new Logic(_state);
         _renderer = new Renderer(_state);
     }

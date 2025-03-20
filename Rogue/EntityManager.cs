@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 using Rogue;
+using System.Drawing;
 
 public class EntityManager
 {
@@ -64,8 +59,10 @@ public class EntityManager
 
     private bool IsPositionValid(Point position)
     {
-        return position.X > 0 && position.X < Constants.MapWidth
+        bool isWall = position.X > 0 && position.X < Constants.MapWidth
         && position.Y > 0 && position.Y < Constants.MapHeight && _state.Map[position.Y, position.X] != TerrainType.Wall;
+        // bool isMonster = _entityGrid[position.Y, position.X];
+        return isWall;  
     }
     public List<IEntity> GetAllEntities()
     {

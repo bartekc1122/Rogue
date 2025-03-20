@@ -37,7 +37,7 @@ namespace Rogue
         { }
         public void ApplyOnDeHanded(Player player)
         { }
-        public IItem Clone()
+        public IEntity Clone()
         {
             return new Mony(Name, Symbol, Color, IsTwoHanded, Value);
         }
