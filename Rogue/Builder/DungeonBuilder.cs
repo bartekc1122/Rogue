@@ -176,7 +176,7 @@ public class DungeonBuilder : IBuilder
     public void EnemyGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new Monster("Utopiec", 'U', ConsoleColor.Blue, 4, 10), 2),
+            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10), 2),
             (new Monster("Rock", '\u2340', ConsoleColor.Blue, 24, 34), 2),
         };
         int attemps = 999;

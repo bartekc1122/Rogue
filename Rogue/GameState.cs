@@ -1,4 +1,5 @@
 using System.Drawing;
+using Rogue;
 public enum TerrainType
 {
     Wall = '█',
@@ -11,6 +12,7 @@ public class Constants
 }
 public class GameState
 {
+    public Manual manual;
     public TerrainType[,] Map { get; }
     public Player Player { get; set; }
     public EntityManager EntityManager;
@@ -20,5 +22,6 @@ public class GameState
         Player = new Player();
         EntityManager = new EntityManager(this);
         EntityManager.AddEntity(Player, new Point(1, 1));
+        manual = new Manual();
     }
 }

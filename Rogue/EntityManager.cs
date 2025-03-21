@@ -51,6 +51,12 @@ public class EntityManager
         List<IItem> items = GetEntitesAt(position).OfType<IItem>().ToList();
         return items;
     }
+    
+    public List<IMonster> GetMonstersAt(Point position)
+    {
+        List<IMonster> items = GetEntitesAt(position).OfType<IMonster>().ToList();
+        return items;
+    }
 
     public Point GetEntityPosition(IEntity entitiy)
     {
@@ -59,13 +65,17 @@ public class EntityManager
 
     private bool IsPositionValid(Point position)
     {
-        bool isWall = position.X > 0 && position.X < Constants.MapWidth
+        bool isFool = position.X > 0 && position.X < Constants.MapWidth
         && position.Y > 0 && position.Y < Constants.MapHeight && _state.Map[position.Y, position.X] != TerrainType.Wall;
-        // bool isMonster = _entityGrid[position.Y, position.X];
-        return isWall;  
+        bool isMonster = _entityGrid[position.Y, position.X].OfType<IMonster>().Any();
+        return isFool && !isMonster;
     }
     public List<IEntity> GetAllEntities()
     {
         return _allEntities;
+    }
+    public List<IEntity>[,] GetEntitesGrid()
+    {
+        return _entityGrid;
     }
 }

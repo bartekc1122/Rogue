@@ -1,12 +1,20 @@
 using System.Drawing;
+using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
 using System.Transactions;
+using Rogue;
 public class Renderer
 {
-    private readonly GameState _state;
+    private static readonly Lazy<Renderer> _instance = new Lazy<Renderer>(() => new Renderer());
+    public static Renderer Instance => _instance.Value;
+    private GameState _state = new GameState();
     private readonly Dictionary<Point, (char Symbol, ConsoleColor color)> _lastFrame = new();
     private readonly List<(string line, ConsoleColor color)> _lastStats = new();
-    public Renderer(GameState state) => _state = state;
 
+    public void SetGameState(GameState gameState)
+    {
+        _state = gameState;
+    }
     public void DrawEntites()
     {
         var currentFrame = new Dictionary<Point, (char Symbol, ConsoleColor color)>();
@@ -55,7 +63,7 @@ public class Renderer
         }
         return toUpdate;
     }
-    public void DrawMap()
+    public void DrawMap(Manual manual)
     {
         for (int y = 0; y < _state.Map.GetLength(0); y++)
         {
@@ -65,6 +73,13 @@ public class Renderer
                 Console.Write((char)_state.Map[y, x]);
             }
         }
+        int inx = _state.Map.GetLength(0);
+        foreach (var line in manual.GetManual())
+        {
+            Console.SetCursorPosition(0, inx);
+            Console.Write(line);
+            inx++;
+        }
     }
     public void DrawStats()
     {
@@ -73,6 +88,7 @@ public class Renderer
         CurrentInventoryState(currentStats);
         CurrentHandsState(currentStats);
         CurrentItemOnFloorState(currentStats);
+        CurrentMonsterNearby(currentStats);
 
         var toUpdate = ToUpdateStats(currentStats);
 
@@ -158,6 +174,41 @@ public class Renderer
         {
             var itemOnFloor = itemsOnFloor.First().ToString();
             currentStats.Add(("Pick up: " + itemOnFloor, ConsoleColor.Yellow));
+        }
+    }
+    public void CurrentMonsterNearby(List<(string, ConsoleColor)> currentStats)
+    {
+        if (_state.Player.Position == null)
+        {
+            return;
+        }
+        int px = _state.Player.Position.Value.X;
+        int py = _state.Player.Position.Value.Y;
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            if (dx == 0)
+                continue;
+            int nx = px + dx;
+
+            if (0 < nx && nx < Constants.MapWidth)
+            {
+                foreach (var monster in _state.EntityManager.GetMonstersAt(new Point(nx, py)))
+                    currentStats.Add(($"-> {monster.Name} is nearby", ConsoleColor.Red));
+
+            }
+        }
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            if (dy == 0)
+                continue;
+            int ny = py + dy;
+
+            if (0 < ny && ny < Constants.MapHeight)
+            {
+                foreach (var monster in _state.EntityManager.GetMonstersAt(new Point(px, ny)))
+                    currentStats.Add(($"-> {monster.Name} is nearby", ConsoleColor.Red));
+
+            }
         }
     }
 }

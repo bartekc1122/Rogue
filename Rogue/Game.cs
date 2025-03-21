@@ -10,7 +10,7 @@ class Game
     public void run()
     {
         Console.CursorVisible = false;
-        _renderer.DrawMap();
+        _renderer.DrawMap(_state.manual);
         while (true)
         {
             _renderer.DrawEntites();
@@ -22,10 +22,15 @@ class Game
     public Game()
     {
         DungeonBuilder dungeonBuilder = new DungeonBuilder();
+        ManualBuilder manualBuilder = new ManualBuilder();
         Director.ConstructClassicDungeon(dungeonBuilder);
+        
         _state = dungeonBuilder.getProduct();
+        Director.ConstructClassicDungeon(manualBuilder);
+        _state.manual = manualBuilder.getProduct();
         _logic = new Logic(_state);
-        _renderer = new Renderer(_state);
+        _renderer = Renderer.Instance;
+        _renderer.SetGameState(_state);
     }
 
 
