@@ -18,7 +18,7 @@ public class Hands
         }
         if(item.IsTwoHanded)
         {
-            return TwohandEquip(item);
+            return TwoHandEquip(item);
         }
         Right = item;
         return true;
@@ -31,12 +31,12 @@ public class Hands
         }
         if(item.IsTwoHanded)
         {
-            return TwohandEquip(item);
+            return TwoHandEquip(item);
         }
         Left = item;
         return true;
     }
-    private bool TwohandEquip(IItem item)
+    private bool TwoHandEquip(IItem item)
     {
         if(Right == null  && Left == null)
         {
@@ -55,7 +55,7 @@ public class Hands
         if(Right.IsTwoHanded)
         {
 
-            return TwohandUnequip();
+            return TwoHandUnequip();
         }
         var item  = Right;
         Right = null;
@@ -69,13 +69,13 @@ public class Hands
         }
         if(Left.IsTwoHanded)
         {
-            return TwohandUnequip();
+            return TwoHandUnequip();
         }
         var item = Left;
         Left = null;
         return item;
     }
-    private IItem? TwohandUnequip()
+    private IItem? TwoHandUnequip()
     {
         if(Right == Left && Right != null)
         {

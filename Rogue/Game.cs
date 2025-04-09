@@ -1,4 +1,3 @@
-using Rogeu;
 using Rogue;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,16 +6,20 @@ class Game
     private readonly GameState _state;
     private readonly Logic _logic;
     private readonly Renderer _renderer;
+    private IInputHandler _inputHandler;
+    private ISubject _subject;
     public void run()
     {
         Console.CursorVisible = false;
         _renderer.DrawMap(_state.manual);
-        while (true)
+        while (!_logic.GameEnd)
         {
-            _renderer.DrawEntites();
-            _renderer.DrawStats();
+            _subject.Notify();
+            _renderer.DrawEntities();
+            _renderer.DrawStats(_state.LastAction);
             HandleInput();
         }
+        _renderer.ClearCMD();
     }
 
     public Game()
@@ -24,54 +27,40 @@ class Game
         DungeonBuilder dungeonBuilder = new DungeonBuilder();
         ManualBuilder manualBuilder = new ManualBuilder();
         Director.ConstructClassicDungeon(dungeonBuilder);
-        
+
         _state = dungeonBuilder.getProduct();
         Director.ConstructClassicDungeon(manualBuilder);
         _state.manual = manualBuilder.getProduct();
         _logic = new Logic(_state);
+
+        InputBuilder inputBuilder = new InputBuilder(_state, _logic);
+        Director.ConstructClassicDungeon(inputBuilder);
+        _inputHandler = inputBuilder.GetProduct();
+
         _renderer = Renderer.Instance;
         _renderer.SetGameState(_state);
+
+        _subject = new Subject();
+        _subject.Attach(_state.Player);
     }
 
 
     private void HandleInput()
     {
         var key = Console.ReadKey(true).Key;
-        Point newPosition = _state.EntityManager.GetEntityPosition(_state.Player);
-        switch (key)
+        var valid = _inputHandler.Handle(key);
+        if((valid as int?) == -1)
         {
-            case ConsoleKey.W:
-                newPosition.Y--;
-                break;
-            case ConsoleKey.S:
-                newPosition.Y++;
-                break;
-            case ConsoleKey.D:
-                newPosition.X++;
-                break;
-            case ConsoleKey.A:
-                newPosition.X--;
-                break;
-            case ConsoleKey.E:
-                _logic.TryPickUpItem();
-                break;
-            case ConsoleKey.J:
-                _state.Player.Inventory.MoveCursor(1);
-                break;
-            case ConsoleKey.K:
-                _state.Player.Inventory.MoveCursor(-1);
-                break;
-            case ConsoleKey.T:
-                _logic.TryThrowItem();
-                break;
-            case ConsoleKey.D1:
-                _logic.EquipRight();
-                break;
-            case ConsoleKey.D2:
-                _logic.EquipLeft();
-                break;
+            _state.LastAction = "Invalid key";
         }
-        _state.EntityManager.MoveEntity(_state.Player, newPosition);
+        else if((valid as string) != "")
+        {
+            _state.LastAction = (valid as string)!;
+        }
+        else
+        {
+            _state.LastAction = "";
+        }
     }
     private bool ValidMove(Point newPosition)
     {

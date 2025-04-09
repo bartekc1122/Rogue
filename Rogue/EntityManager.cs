@@ -42,21 +42,22 @@ public class EntityManager
         entity.Position = newPostition;
         _entityGrid[newPostition.Y, newPostition.X].Add(entity);
     }
-    public List<IEntity> GetEntitesAt(Point position)
+    public List<IEntity> GetEntitiesAt(Point position)
     {
         return _entityGrid[position.Y, position.X];
     }
     public List<IItem> GetItemsAt(Point position)
     {
-        List<IItem> items = GetEntitesAt(position).OfType<IItem>().ToList();
+        List<IItem> items = GetEntitiesAt(position).OfType<IItem>().ToList();
         return items;
     }
     
     public List<IMonster> GetMonstersAt(Point position)
     {
-        List<IMonster> items = GetEntitesAt(position).OfType<IMonster>().ToList();
+        List<IMonster> items = GetEntitiesAt(position).OfType<IMonster>().ToList();
         return items;
     }
+
 
     public Point GetEntityPosition(IEntity entitiy)
     {
@@ -74,7 +75,7 @@ public class EntityManager
     {
         return _allEntities;
     }
-    public List<IEntity>[,] GetEntitesGrid()
+    public List<IEntity>[,] GetEntitiesGrid()
     {
         return _entityGrid;
     }

@@ -4,4 +4,5 @@ public interface IMonster : IEntity
     public String Name { get; }
     int Damage { get; }
     int Health { get; }
+    
 }

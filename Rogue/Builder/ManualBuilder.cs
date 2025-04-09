@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 namespace Rogue;
 
 public class ManualBuilder : IBuilder
@@ -75,6 +76,10 @@ public class ManualBuilder : IBuilder
     {
         _manual.AddToManual("Normal Attack (z)");
     }
+    public void AddExit()
+    {
+        _manual.AddToManual("Exit (x)");
+    }
     public Manual getProduct()
     {
         return _manual;
@@ -108,6 +113,6 @@ public class ManualBuilder : IBuilder
     }
     private void AddPotionInstructions()
     {
-        _manual.AddToManual("Drink Potion (U)");
+        _manual.AddToManual("Drink Potion (u)");
     }
 }

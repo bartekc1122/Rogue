@@ -27,6 +27,7 @@ namespace Rogue
         { }
         public void ApplyOnDeHanded(Player player)
         { }
+
         public override String ToString()
         {
             return Name;
@@ -83,6 +84,7 @@ namespace Rogue
         {
             return new CursedWeapon((IWeapon)_weapon.Clone());
         }
+
     }
     public class AggroWeapon : IWeapon
     {

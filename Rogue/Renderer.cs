@@ -15,7 +15,7 @@ public class Renderer
     {
         _state = gameState;
     }
-    public void DrawEntites()
+    public void DrawEntities()
     {
         var currentFrame = new Dictionary<Point, (char Symbol, ConsoleColor color)>();
 
@@ -65,6 +65,7 @@ public class Renderer
     }
     public void DrawMap(Manual manual)
     {
+        Console.Clear();
         for (int y = 0; y < _state.Map.GetLength(0); y++)
         {
             for (int x = 0; x < _state.Map.GetLength(1); x++)
@@ -81,14 +82,17 @@ public class Renderer
             inx++;
         }
     }
-    public void DrawStats()
+    public void DrawStats(string lastAction)
     {
         var currentStats = new List<(string, ConsoleColor)>();
         CurrentStatsState(currentStats);
+        CurrentEffects(currentStats);
         CurrentInventoryState(currentStats);
         CurrentHandsState(currentStats);
         CurrentItemOnFloorState(currentStats);
         CurrentMonsterNearby(currentStats);
+        CurrentLastAction(currentStats);
+        
 
         var toUpdate = ToUpdateStats(currentStats);
 
@@ -108,30 +112,44 @@ public class Renderer
     }
     public List<(int idx, string line, ConsoleColor color)> ToUpdateStats(List<(string line, ConsoleColor color)> currentStats)
     {
-        int lenghtOfLine = 40;
+        int lengthOfLine = 40;
         var toUpdate = new List<(int inx, string line, ConsoleColor color)>();
         for (int i = 0; i < currentStats.Count; i++)
         {
             if (!(i < _lastStats.Count) || currentStats[i].line != _lastStats[i].line)
             {
-                toUpdate.Add((i, currentStats[i].line + new string(' ', lenghtOfLine - currentStats[i].line.Length), currentStats[i].color));
+                toUpdate.Add((i, currentStats[i].line + new string(' ', lengthOfLine - currentStats[i].line.Length), currentStats[i].color));
                 continue;
             }
             // Clearing lines 
             for (int j = currentStats.Count; j < _lastStats.Count; j++)
             {
-                toUpdate.Add((j, new string(' ', lenghtOfLine), ConsoleColor.Black));
+                toUpdate.Add((j, new string(' ', lengthOfLine), ConsoleColor.Black));
             }
         }
         return toUpdate;
+    }
+    private void CurrentEffects(List<(string, ConsoleColor)> currentStats)
+    {
+        foreach(var effect in _state.Player.effects)
+        {
+            currentStats.Add((effect.ToString(), ConsoleColor.Green));
+        }
+    }
+    private void CurrentLastAction(List<(string, ConsoleColor)> currentStats)
+    {
+        if (!string.IsNullOrWhiteSpace(_state.LastAction))
+        {
+            currentStats.Add(($" -> {_state.LastAction} <-", ConsoleColor.White));
+        }
     }
     public void CurrentInventoryState(List<(string, ConsoleColor)> currentStats)
     {
         currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
         currentStats.Add(($"Inventory:", ConsoleColor.Magenta));
-        for (int i = 0; i < _state.Player.Inventory.InventoryCount(); i++)
+        foreach (var item in _state.Player.Inventory.GetInventory())
         {
-            var item = _state.Player.Inventory.GetInventory()[i];
+            //var item = _state.Player.Inventory.GetInventory()[i];
             if (item == _state.Player.Inventory.GetSelectedItem())
             {
                 currentStats.Add(("-> " + item.ToString(), ConsoleColor.DarkYellow));
@@ -152,7 +170,7 @@ public class Renderer
             ($"Agility: {_state.Player.Stats.Agility}",ConsoleColor.White),
             ($"Health: {_state.Player.Stats.Health}",ConsoleColor.White),
             ($"Luck: {_state.Player.Stats.Luck}",ConsoleColor.White),
-            ($"Aggresion: {_state.Player.Stats.Aggro}",ConsoleColor.White),
+            ($"Aggression: {_state.Player.Stats.Aggro}",ConsoleColor.White),
             ($"Wisdom: {_state.Player.Stats.Wisdom}",ConsoleColor.White),
         });
     }
@@ -210,5 +228,9 @@ public class Renderer
 
             }
         }
+    }
+    public void ClearCMD()
+    {
+        Console.Clear();
     }
 }

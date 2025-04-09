@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Drawing;
 using System.Data;
+using System.Runtime.CompilerServices;
 namespace Rogue;
 
 public class DungeonBuilder : IBuilder
@@ -152,14 +153,14 @@ public class DungeonBuilder : IBuilder
     public void PotionsGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new Potion("PoisonPotion", 'p', ConsoleColor.DarkGreen), 2),
-            (new Potion("HealthPotion", 'h', ConsoleColor.DarkRed), 2),
+            (new Potion("PowerPotion", 'p', ConsoleColor.DarkGreen, new Strong(60)), 2),
+            (new Potion("AggroPotion", 'a', ConsoleColor.Blue, new Aggro(1)), 2),
         };
         int attemps = 999;
         int deplyedItems = -1;
         for (int i = -1; i < attemps; i++)
         {
-            if (deplyedItems >= 4)
+            if (deplyedItems >= 10)
             {
                 break;
             }
@@ -169,7 +170,7 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(DecoratedWeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new Potion("Broth", 'u', ConsoleColor.DarkYellow), deployPoint);
+            _gameState.EntityManager.AddEntity(item ?? new Potion("Broth", 'u', ConsoleColor.DarkYellow, new Luck(40)), deployPoint);
             deplyedItems++;
         }
     }
@@ -193,10 +194,12 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(DecoratedWeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5 ,5), deployPoint);
+            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5, 5), deployPoint);
             deplyedItems++;
         }
     }
+    public void AddExit()
+    { }
     public GameState getProduct()
     {
         var product = _gameState;

@@ -13,6 +13,7 @@ public class Constants
 public class GameState
 {
     public Manual manual;
+    public string LastAction;
     public TerrainType[,] Map { get; }
     public Player Player { get; set; }
     public EntityManager EntityManager;
@@ -23,5 +24,6 @@ public class GameState
         EntityManager = new EntityManager(this);
         EntityManager.AddEntity(Player, new Point(1, 1));
         manual = new Manual();
+        LastAction = "";
     }
 }

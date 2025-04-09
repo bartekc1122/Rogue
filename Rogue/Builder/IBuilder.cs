@@ -16,4 +16,5 @@ public interface IBuilder
     public void PotionsGeneration();
     public void EnemyGeneration();
     public void AddPaths();
+    public void AddExit();
 }

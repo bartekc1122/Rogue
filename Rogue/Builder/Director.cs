@@ -1,13 +1,14 @@
 using Rogue;
 
-namespace Rogeu;
+namespace Rogue;
 
 public static class Director
 {
     public static void ConstructClassicDungeon(IBuilder builder)
     {
         builder.Reset();
-        builder.AddMainChamber(4);        
+        builder.AddExit(); 
+        builder.AddMainChamber(4);
         // builder.AddRandomChamber(2);
         // builder.AddRandomChamber(2);
         // builder.AddRandomChamber(2);

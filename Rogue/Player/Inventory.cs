@@ -38,7 +38,7 @@ public class Inventory
     }
     public List<IItem> GetInventory()
     {
-        return _inventory;
+       return _inventory;
     }
     public int InventoryCount()
     {
