@@ -18,6 +18,6 @@ public static class Director
         builder.WeaponGeneration();
         builder.DecoratedWeaponGeneration();
         builder.PotionsGeneration();
-        builder.EnemyGeneration();
+        // builder.EnemyGeneration();
     }
 }

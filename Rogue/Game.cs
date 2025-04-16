@@ -14,7 +14,6 @@ class Game
         _renderer.DrawMap(_state.manual);
         while (!_logic.GameEnd)
         {
-            _subject.Notify();
             _renderer.DrawEntities();
             _renderer.DrawStats(_state.LastAction);
             HandleInput();
@@ -55,6 +54,7 @@ class Game
         }
         else if((valid as string) != "")
         {
+            _subject.Notify();
             _state.LastAction = (valid as string)!;
         }
         else
