@@ -12,7 +12,8 @@ public class Monster : IMonster
     public int Health { get; }
     public int Zindex;
 
-    public Monster(string name, char symbol, ConsoleColor color, int damage, int health)
+    public int Defense {get;}
+    public Monster(string name, char symbol, ConsoleColor color, int damage, int health, int defense)
     {
         Zindex = 3;
         Name = name;
@@ -20,13 +21,14 @@ public class Monster : IMonster
         Color = color;
         Damage = damage;
         Health = health;
+        Defense = defense;
     }
-    public override String ToString()
+    public  String MyToString()
     {
         return Name;
     }
     public IEntity Clone()
     {
-        return new Monster(Name, Symbol, Color, Damage, Health);
+        return new Monster(Name, Symbol, Color, Damage, Health, Defense);
     }
 }

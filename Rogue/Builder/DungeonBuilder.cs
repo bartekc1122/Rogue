@@ -82,11 +82,11 @@ public class DungeonBuilder : IBuilder
             (new Item("Duck", 'D', ConsoleColor.Yellow), 0),
             (new Item("Stick", 'I', ConsoleColor.DarkGray), 3),
         };
-        int attemps = 999;
-        int deplyedItems = -1;
-        for (int i = -1; i < attemps; i++)
+        int attempts = 999;
+        int deployedItems = -1;
+        for (int i = -1; i < attempts; i++)
         {
-            if (deplyedItems >= 9)
+            if (deployedItems >= 9)
             {
                 break;
             }
@@ -97,21 +97,21 @@ public class DungeonBuilder : IBuilder
             }
             var item = SelectItem(ItemList);
             _gameState.EntityManager.AddEntity(item ?? new Item("shit", 'g', ConsoleColor.DarkGray), deployPoint);
-            deplyedItems++;
+            deployedItems++;
         }
     }
     public void WeaponGeneration()
     {
         var WeaponList = new List<(IEntity, int)> {
-            (new Weapon("Sword", 't', ConsoleColor.Gray, 10), 6),
-            (new Weapon("Double Sword", 'T', ConsoleColor.Green, 20, true), 2),
-            (new Weapon("Saber", 'C', ConsoleColor.Magenta, 15), 4),
+            (new HeavyWeapon(), 6),
+            (new HeavyWeapon("Double Sword", 'T', ConsoleColor.Green, 20, true), 2),
+            (new HeavyWeapon("Saber", 'C', ConsoleColor.Magenta, 15), 4),
         };
-        int attemps = 999;
-        int deplyedItems = -1;
-        for (int i = -1; i < attemps; i++)
+        int attempts = 999;
+        int deployedItems = -1;
+        for (int i = -1; i < attempts; i++)
         {
-            if (deplyedItems >= 9)
+            if (deployedItems >= 9)
             {
                 break;
             }
@@ -121,22 +121,20 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(WeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new Weapon("Wooden Sword", 'l', ConsoleColor.DarkYellow, 5), deployPoint);
-            deplyedItems++;
+            _gameState.EntityManager.AddEntity(item ?? new HeavyWeapon("Wooden Sword", 'l', ConsoleColor.DarkYellow, 5), deployPoint);
+            deployedItems++;
         }
     }
     public void DecoratedWeaponGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new CursedWeapon(new Weapon("Sword", 't', ConsoleColor.Gray, 10)), 2),
-            (new AggroWeapon(new Weapon("Double Sword", 'T', ConsoleColor.Green, 20, true)), 2),
-            (new CursedWeapon(new Weapon("Saber", 'C', ConsoleColor.Magenta, 15)), 3),
+            (new CursedWeapon(new HeavyWeapon()), 2),
         };
-        int attemps = 999;
-        int deplyedItems = -1;
-        for (int i = -1; i < attemps; i++)
+        int attempts = 999;
+        int deployedItems = -1;
+        for (int i = -1; i < attempts; i++)
         {
-            if (deplyedItems >= 6)
+            if (deployedItems >= 6)
             {
                 break;
             }
@@ -146,8 +144,8 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(DecoratedWeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new AggroWeapon(new Weapon("Wooden Sword", 'l', ConsoleColor.DarkYellow, 5)), deployPoint);
-            deplyedItems++;
+            _gameState.EntityManager.AddEntity(item ?? new AggroWeapon(new LightWeapon()), deployPoint);
+            deployedItems++;
         }
     }
     public void PotionsGeneration()
@@ -156,11 +154,11 @@ public class DungeonBuilder : IBuilder
             (new Potion("PowerPotion", 'p', ConsoleColor.DarkGreen, new Strong(60)), 2),
             (new Potion("AggroPotion", 'a', ConsoleColor.Blue, new Aggro(1)), 2),
         };
-        int attemps = 999;
-        int deplyedItems = -1;
-        for (int i = -1; i < attemps; i++)
+        int attempts = 999;
+        int deployedItems = -1;
+        for (int i = -1; i < attempts; i++)
         {
-            if (deplyedItems >= 10)
+            if (deployedItems >= 10)
             {
                 break;
             }
@@ -171,20 +169,20 @@ public class DungeonBuilder : IBuilder
             }
             var item = SelectItem(DecoratedWeaponList);
             _gameState.EntityManager.AddEntity(item ?? new Potion("Broth", 'u', ConsoleColor.DarkYellow, new Luck(40)), deployPoint);
-            deplyedItems++;
+            deployedItems++;
         }
     }
     public void EnemyGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10), 2),
-            (new Monster("Rock", '\u2340', ConsoleColor.Blue, 24, 34), 2),
+            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10, 5), 2),
+            (new Monster("Crab", '\u2340', ConsoleColor.Blue, 24, 34, 8), 2),
         };
-        int attemps = 999;
-        int deplyedItems = -1;
-        for (int i = -1; i < attemps; i++)
+        int attempts = 999;
+        int deployedItems = -1;
+        for (int i = -1; i < attempts; i++)
         {
-            if (deplyedItems >= 4)
+            if (deployedItems >= 4)
             {
                 break;
             }
@@ -194,8 +192,8 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(DecoratedWeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5, 5), deployPoint);
-            deplyedItems++;
+            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5, 5, 1), deployPoint);
+            deployedItems++;
         }
     }
     public void AddExit()

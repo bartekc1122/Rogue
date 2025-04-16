@@ -33,7 +33,7 @@ public class Potion : IItem
         player.effects.Add(effect);
         return true;
     }
-    public override String ToString()
+    public String MyToString()
     {
         return Name;
     }

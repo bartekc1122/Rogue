@@ -39,7 +39,7 @@ public abstract class AEffect
     {
         return 0; ;
     }
-    public override string ToString()
+    public virtual string MyToString()
     {
         return $"Effect ({Duration})";
     }
@@ -55,7 +55,7 @@ public class Strong : AEffect
     {
         return 5;
     }
-    public override string ToString()
+    public override string MyToString()
     {
         return $"Strong Effect ({Duration})";
     }
@@ -82,7 +82,7 @@ public class Luck : AEffect
     {
         return _luck;
     }
-    public override string ToString()
+    public override string MyToString()
     {
         return $"Luck Effect ({Duration})";
     }
@@ -104,9 +104,9 @@ public class Aggro : AEffect
     {
         return 10;
     }
-    public override string ToString()
+    public override string MyToString()
     {
-        return $"Aggro Effect ";
+        return $"Aggro Effect";
     }
     public override AEffect Clone(AEffect aEffect)
     {

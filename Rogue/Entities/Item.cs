@@ -25,10 +25,6 @@ public class Item : IItem
     { }
     public void ApplyOnDeHanded(Player player)
     { }
-    public override String ToString()
-    {
-        return Name;
-    }
     public IEntity Clone()
     {
         return new Item(Name, Symbol, Color, IsTwoHanded);

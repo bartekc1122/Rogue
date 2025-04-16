@@ -7,20 +7,17 @@ using System.Threading.Tasks;
 
 namespace Rogue
 {
-    public interface IItem : IEntity
+    public interface IItem : IEntity, IWeaponComponent
     {
-        public String Name { get; }
-        public String ToString();
-        public bool IsTwoHanded {get;}
+        public string Name { get; }
+        public string MyToString() { return Name ?? "Not set!"; }
+        public bool IsTwoHanded { get; }
 
-        public void ApplyOnPickUp(Player player);
-        public void ApplyOnDePickUp(Player player);
-        public void ApplyOnHanded(Player player);
-        public void ApplyOnDeHanded(Player player);
-        public bool Drink(Player player)
-        {
-            return false;
-        }
+        public void ApplyOnPickUp(Player player) { }
+        public void ApplyOnDePickUp(Player player) { }
+        public void ApplyOnHanded(Player player) { }
+        public void ApplyOnDeHanded(Player player) { }
+        public bool Drink(Player player) => false;
     }
 
 }

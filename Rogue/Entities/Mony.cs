@@ -29,7 +29,7 @@ namespace Rogue
             player.Stats.Money -= Value;
             player.Inventory.AddToInventory(this);
         }
-        public override String ToString()
+        public String MyToString()
         {
             return Name;
         }

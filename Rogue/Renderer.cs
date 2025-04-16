@@ -92,7 +92,7 @@ public class Renderer
         CurrentItemOnFloorState(currentStats);
         CurrentMonsterNearby(currentStats);
         CurrentLastAction(currentStats);
-        
+
 
         var toUpdate = ToUpdateStats(currentStats);
 
@@ -131,9 +131,9 @@ public class Renderer
     }
     private void CurrentEffects(List<(string, ConsoleColor)> currentStats)
     {
-        foreach(var effect in _state.Player.effects)
+        foreach (var effect in _state.Player.effects)
         {
-            currentStats.Add((effect.ToString(), ConsoleColor.Green));
+            currentStats.Add((effect.MyToString(), ConsoleColor.Green));
         }
     }
     private void CurrentLastAction(List<(string, ConsoleColor)> currentStats)
@@ -152,11 +152,11 @@ public class Renderer
             //var item = _state.Player.Inventory.GetInventory()[i];
             if (item == _state.Player.Inventory.GetSelectedItem())
             {
-                currentStats.Add(("-> " + item.ToString(), ConsoleColor.DarkYellow));
+                currentStats.Add(("-> " + item.MyToString(), ConsoleColor.DarkYellow));
             }
             else
             {
-                currentStats.Add((item.ToString(), item.Color));
+                currentStats.Add((item.MyToString(), item.Color));
             }
         }
     }
@@ -180,8 +180,8 @@ public class Renderer
         currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
         var Right = _state.Player.Hands.Right;
         var Left = _state.Player.Hands.Left;
-        currentStats.Add(("Right hand: " + (Right?.ToString() ?? ""), ConsoleColor.Cyan));
-        currentStats.Add(("Left hand: " + (Left?.ToString() ?? ""), ConsoleColor.Cyan));
+        currentStats.Add(("Right hand: " + (Right?.MyToString() ?? ""), ConsoleColor.Cyan));
+        currentStats.Add(("Left hand: " + (Left?.MyToString() ?? ""), ConsoleColor.Cyan));
     }
 
     public void CurrentItemOnFloorState(List<(string, ConsoleColor)> currentStats)
@@ -190,7 +190,7 @@ public class Renderer
         var itemsOnFloor = _state.EntityManager.GetItemsAt(_state.EntityManager.GetEntityPosition(_state.Player));
         if (itemsOnFloor.Any())
         {
-            var itemOnFloor = itemsOnFloor.First().ToString();
+            var itemOnFloor = itemsOnFloor.First().MyToString();
             currentStats.Add(("Pick up: " + itemOnFloor, ConsoleColor.Yellow));
         }
     }
