@@ -32,9 +32,11 @@ abstract class AbstractInputHandler : IInputHandler
 class WSADHandler : AbstractInputHandler
 {
     private GameState _gameState;
-    public WSADHandler(GameState gameState)
+    private Logic _logic;
+    public WSADHandler(GameState gameState, Logic logic)
     {
         _gameState = gameState;
+        _logic = logic;
     }
 
     public override object? Handle(object request)
@@ -44,19 +46,35 @@ class WSADHandler : AbstractInputHandler
         {
             case ConsoleKey.W:
                 newPosition.Y--;
-                _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                var enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                if (enemy != null)
+                {
+                    return _logic.Fight(_gameState.Player, enemy);
+                }
                 return "Moved down";
             case ConsoleKey.S:
                 newPosition.Y++;
-                _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                if (enemy != null)
+                {
+                    return _logic.Fight(_gameState.Player, enemy);
+                }
                 return "Moved up";
             case ConsoleKey.A:
                 newPosition.X--;
-                _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                if (enemy != null)
+                {
+                    return _logic.Fight(_gameState.Player, enemy);
+                }
                 return "Moved left";
             case ConsoleKey.D:
                 newPosition.X++;
-                _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
+                if (enemy != null)
+                {
+                    return _logic.Fight(_gameState.Player, enemy);
+                }
                 return "Moved right";
             default:
                 return base.Handle(request);
@@ -257,6 +275,26 @@ class DrinkHandler : AbstractInputHandler
             {
                 return base.Handle(request);
             }
+        }
+        else
+        {
+            return base.Handle(request);
+        }
+    }
+}
+class AttackSelectHandler : AbstractInputHandler
+{
+    private GameState _gameState;
+    public AttackSelectHandler(GameState gameState)
+    {
+        _gameState = gameState;
+    }
+    public override object? Handle(object request)
+    {
+        if ((request as ConsoleKey?) == ConsoleKey.C)
+        {
+            _gameState.Player.ChoseAttackIndex = (_gameState.Player.ChoseAttackIndex + 1) % _gameState.Player.Attacks.Count;
+            return "Attack changed";
         }
         else
         {

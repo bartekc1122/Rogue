@@ -41,4 +41,8 @@ public class Potion : IItem
     {
         return new Potion(Name, Symbol, Color, Effect.Clone(Effect));
     }
+    public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
+    {
+        return visitor.DamageItem(player);
+    }
 }

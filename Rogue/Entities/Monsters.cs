@@ -9,7 +9,7 @@ public class Monster : IMonster
     public string Name { get; }
     public Point? Position { get; set; }
     public int Damage { get; }
-    public int Health { get; }
+    public int Health { get; set;}
     public int Zindex;
 
     public int Defense {get;}

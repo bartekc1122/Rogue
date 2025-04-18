@@ -17,6 +17,13 @@ class Game
             _renderer.DrawEntities();
             _renderer.DrawStats(_state.LastAction);
             HandleInput();
+            if (_state.Player.Stats.Health <= 0)
+            {
+                _logic.GameEnd = true;
+                Console.Clear();
+                System.Console.WriteLine("You died...");
+                Console.ReadKey();
+            }
         }
         _renderer.ClearCMD();
     }
@@ -48,11 +55,11 @@ class Game
     {
         var key = Console.ReadKey(true).Key;
         var valid = _inputHandler.Handle(key);
-        if((valid as int?) == -1)
+        if ((valid as int?) == -1)
         {
             _state.LastAction = "Invalid key";
         }
-        else if((valid as string) != "")
+        else if ((valid as string) != "")
         {
             _subject.Notify();
             _state.LastAction = (valid as string)!;

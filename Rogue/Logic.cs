@@ -21,10 +21,10 @@ public class Logic
         var items = _entityManager.GetItemsAt(_entityManager.GetEntityPosition(_player));
         if (items.Count() == 0)
         { return false; }
-        var topitem = items.First();
-        _entityManager.RemoveEntity(topitem);
-        _player.Inventory.AddToInventory(topitem);
-        topitem.ApplyOnPickUp(_player);
+        var topItem = items.First();
+        _entityManager.RemoveEntity(topItem);
+        _player.Inventory.AddToInventory(topItem);
+        topItem.ApplyOnPickUp(_player);
         return true;
     }
     public bool DrinkLogic()
@@ -103,12 +103,40 @@ public class Logic
                 return true;
             }
         }
-        var iteme = _player.Hands.LeftUnequip();
-        if (iteme != null)
+        var itemUnequip = _player.Hands.LeftUnequip();
+        if (itemUnequip != null)
         {
-            _player.Inventory.AddToInventory(iteme);
-            iteme.ApplyOnDeHanded(_player);
+            _player.Inventory.AddToInventory(itemUnequip);
+            itemUnequip.ApplyOnDeHanded(_player);
         }
         return false;
+    }
+    public string Fight(Player player, IMonster monster)
+    {
+        var attack = player.Attacks[player.ChoseAttackIndex];
+        int damageDealt = 0;
+        int playerDefense = 0;
+        if (player.Hands.Right != null)
+        {
+            var accept = player.Hands.Right.Accept(attack, player);
+            damageDealt += accept.damage;
+            playerDefense += accept.defense;
+        }
+        if (player.Hands.Left != null && player.Hands.Left != player.Hands.Right)
+        {
+            var accept = player.Hands.Left.Accept(attack, player);
+            damageDealt += accept.damage;
+            playerDefense += accept.defense;
+        }
+        var damage = damageDealt - monster.Defense < 0 ? 0 : damageDealt - monster.Defense;
+        monster.Health -= damage;
+        if (monster.Health <= 0)
+        {
+            _gameState.EntityManager.RemoveEntity(monster);
+            return $"{damage} damage kills {monster.Name}";
+        }
+        int received = monster.Damage - playerDefense < 0 ? 0 : monster.Damage - playerDefense;
+        player.Stats.Health -= received;
+        return $"Dealt: {damage} to {monster.Name}, Received: {received}";
     }
 }

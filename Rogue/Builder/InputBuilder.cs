@@ -40,6 +40,7 @@ public class InputBuilder : IBuilder
 
     public void DecoratedWeaponGeneration()
     {
+
         if (!EqInput)
         {
             AddEqInput();
@@ -52,6 +53,7 @@ public class InputBuilder : IBuilder
 
     public void EnemyGeneration()
     {
+        _endHandler = _endHandler.SetNext(new AttackSelectHandler(_gameState));
     }
 
     public void FilledDungeon()
@@ -80,9 +82,10 @@ public class InputBuilder : IBuilder
 
     public void Reset()
     {
-        _startHandler = new WSADHandler(_gameState);
+        _startHandler = new WSADHandler(_gameState, _logic);
         _endHandler = _startHandler;
     }
+    
 
     public void WeaponGeneration()
     {

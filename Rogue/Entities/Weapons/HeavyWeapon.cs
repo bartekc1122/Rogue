@@ -19,9 +19,9 @@ public class HeavyWeapon : IWeapon
         IsTwoHanded = isTwoHanded;
         Damage = damage;
     }
-    public void Accept(ICombatVisitor visitor)
+    public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
     {
-        visitor.DamageHeavyWeapon(this);
+        return visitor.DamageHeavyWeapon(this, player);
     }
 
 

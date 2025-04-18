@@ -11,6 +11,8 @@ public class Player : IEntity, IObserver
     public Statistic Stats;
     public Hands Hands;
     public List<AEffect> effects;
+    public List<ICombatVisitor> Attacks;
+    public int ChoseAttackIndex;
     public int Zindex;
 
     public Inventory Inventory;
@@ -21,6 +23,8 @@ public class Player : IEntity, IObserver
         Inventory = new Inventory();
         Hands = new Hands();
         effects = new List<AEffect>();
+        Attacks = new List<ICombatVisitor> { new NormalAttack(), new MagicAttack(), new StealthAttack() };
+        ChoseAttackIndex = 0;
     }
     public IEntity Clone()
     {

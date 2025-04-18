@@ -41,5 +41,9 @@ namespace Rogue
         {
             return new Mony(Name, Symbol, Color, IsTwoHanded, Value);
         }
+        public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
+        {
+            return visitor.DamageItem(player);
+        }
     }
 }

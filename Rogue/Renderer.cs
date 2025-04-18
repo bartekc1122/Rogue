@@ -182,6 +182,7 @@ public class Renderer
         var Left = _state.Player.Hands.Left;
         currentStats.Add(("Right hand: " + (Right?.MyToString() ?? ""), ConsoleColor.Cyan));
         currentStats.Add(("Left hand: " + (Left?.MyToString() ?? ""), ConsoleColor.Cyan));
+        currentStats.Add(($"Selected: { _state.Player.Attacks[_state.Player.ChoseAttackIndex].MyGetString() }", ConsoleColor.Cyan));
     }
 
     public void CurrentItemOnFloorState(List<(string, ConsoleColor)> currentStats)

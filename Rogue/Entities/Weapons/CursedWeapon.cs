@@ -29,9 +29,9 @@ public class CursedWeapon : WeaponDecorator
     {
         return new CursedWeapon((IWeapon)_weapon.Clone());
     }
-    public override void Accept(ICombatVisitor visitor)
+    public override (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
     {
-        _weapon.Accept(visitor);
+        return _weapon.Accept(visitor, player);
     }
 
 }

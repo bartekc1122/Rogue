@@ -29,4 +29,8 @@ public class Item : IItem
     {
         return new Item(Name, Symbol, Color, IsTwoHanded);
     }
+    public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
+    {
+        return visitor.DamageItem(player);
+    }
 }

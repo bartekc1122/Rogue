@@ -11,9 +11,9 @@ public class MagicWeapon : IWeapon
     public bool IsTwoHanded { get; }
     public int Damage { get; }
 
-    public void Accept(ICombatVisitor visitor)
+    public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
     {
-        visitor.DamageMagicWeapon(this);
+        return visitor.DamageMagicWeapon(this, player);
     }
     public MagicWeapon(string name = "Stuff", char symbol = 'j', ConsoleColor color = ConsoleColor.DarkMagenta, int damage = 12, bool isTwoHanded = false)
     {

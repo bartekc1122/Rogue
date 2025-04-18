@@ -12,7 +12,7 @@ public abstract class WeaponDecorator : IWeapon
     }
 
     public IWeapon BaseWeapon => _weapon;
-    public abstract void Accept(ICombatVisitor visitor);
+    public abstract (int damage, int defense) Accept(ICombatVisitor visitor, Player player);
 
     public virtual char Symbol => _weapon.Symbol;
     public virtual ConsoleColor Color => _weapon.Color;

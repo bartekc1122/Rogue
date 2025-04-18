@@ -30,17 +30,18 @@ public class EntityManager
         _entityGrid[position.Y, position.X].Remove(entity);
         _allEntities.Remove(entity);
     }
-    public void MoveEntity(IEntity entity, Point newPostition)
+    public IMonster? MoveEntity(IEntity entity, Point newPosition)
     {
-        if (!IsPositionValid(newPostition))
-            return;
+        if (!IsPositionValid(newPosition))
+            return GetMonstersAt(newPosition).Count != 0 ? GetMonstersAt(newPosition).First(): null;
         if (entity.Position == null)
-            return;
-        Point oldPostition = entity.Position.Value;
-        _entityGrid[oldPostition.Y, oldPostition.X].Remove(entity);
+            return null;
+        Point oldPosition = entity.Position.Value;
+        _entityGrid[oldPosition.Y, oldPosition.X].Remove(entity);
 
-        entity.Position = newPostition;
-        _entityGrid[newPostition.Y, newPostition.X].Add(entity);
+        entity.Position = newPosition;
+        _entityGrid[newPosition.Y, newPosition.X].Add(entity);
+        return null;
     }
     public List<IEntity> GetEntitiesAt(Point position)
     {
@@ -59,9 +60,9 @@ public class EntityManager
     }
 
 
-    public Point GetEntityPosition(IEntity entitiy)
+    public Point GetEntityPosition(IEntity entity)
     {
-        return entitiy.Position!.Value;
+        return entity.Position!.Value;
     }
 
     private bool IsPositionValid(Point position)

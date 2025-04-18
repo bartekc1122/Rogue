@@ -9,9 +9,9 @@ public class LightWeapon : IWeapon
     public Point? Position { get; set; }
     public bool IsTwoHanded { get; }
     public int Damage { get; }
-    public void Accept(ICombatVisitor visitor)
+    public (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
     {
-        visitor.DamageLightWeapon(this);
+        return visitor.DamageLightWeapon(this, player);
     }
 
 
