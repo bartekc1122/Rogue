@@ -31,7 +31,8 @@ public class CursedWeapon : WeaponDecorator
     }
     public override (int damage, int defense) Accept(ICombatVisitor visitor, Player player)
     {
-        return _weapon.Accept(visitor, player);
+        var ret =_weapon.Accept(visitor, player);
+        ret.damage -= 2;
+        return ret;
     }
-
-}
+}        
