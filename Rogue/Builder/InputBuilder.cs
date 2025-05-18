@@ -53,7 +53,7 @@ public class InputBuilder : IBuilder
 
     public void EnemyGeneration()
     {
-        _endHandler = _endHandler.SetNext(new AttackSelectHandler(_gameState));
+        _endHandler = _endHandler.SetNext(new AttackSelectHandler(_logic));
     }
 
     public void FilledDungeon()
@@ -82,7 +82,7 @@ public class InputBuilder : IBuilder
 
     public void Reset()
     {
-        _startHandler = new WSADHandler(_gameState, _logic);
+        _startHandler = new WSADHandler( _logic);
         _endHandler = _startHandler;
     }
     
@@ -101,8 +101,8 @@ public class InputBuilder : IBuilder
     private void AddEqInput()
     {
         var PickUp = new PickUpHandler(_logic);
-        var invUp = new MoveCursorUpHandler(_gameState);
-        var invDown = new MoveCursorDownHandler(_gameState);
+        var invUp = new MoveCursorUpHandler(_logic);
+        var invDown = new MoveCursorDownHandler(_logic);
         var throwItem = new ThrowItemHandler(_logic);
         var throwAllItems = new ThrowAllItemHandler(_logic);
         var equipLeft = new EquipLeftHandler(_logic);

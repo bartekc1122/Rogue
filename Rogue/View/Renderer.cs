@@ -10,6 +10,7 @@ public class Renderer
     private GameState _state = new GameState();
     private readonly Dictionary<Point, (char Symbol, ConsoleColor color)> _lastFrame = new();
     private readonly List<(string line, ConsoleColor color)> _lastStats = new();
+    private Player _player => _state.Players[0];
 
     public void SetGameState(GameState gameState)
     {
@@ -131,7 +132,7 @@ public class Renderer
     }
     private void CurrentEffects(List<(string, ConsoleColor)> currentStats)
     {
-        foreach (var effect in _state.Player.effects)
+        foreach (var effect in _player.effects)
         {
             currentStats.Add((effect.MyToString(), ConsoleColor.Green));
         }
@@ -147,10 +148,10 @@ public class Renderer
     {
         currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
         currentStats.Add(($"Inventory:", ConsoleColor.Magenta));
-        foreach (var item in _state.Player.Inventory.GetInventory())
+        foreach (var item in _player.Inventory.GetInventory())
         {
             //var item = _state.Player.Inventory.GetInventory()[i];
-            if (item == _state.Player.Inventory.GetSelectedItem())
+            if (item == _player.Inventory.GetSelectedItem())
             {
                 currentStats.Add(("-> " + item.MyToString(), ConsoleColor.DarkYellow));
             }
@@ -165,30 +166,30 @@ public class Renderer
         currentStats.AddRange(new[]
         {
             (new string('#', 20), ConsoleColor.DarkCyan),
-            ($"Money: {_state.Player.Stats.Money}",ConsoleColor.Yellow),
-            ($"Power: {_state.Player.Stats.Power}",ConsoleColor.White),
-            ($"Agility: {_state.Player.Stats.Agility}",ConsoleColor.White),
-            ($"Health: {_state.Player.Stats.Health}",ConsoleColor.White),
-            ($"Luck: {_state.Player.Stats.Luck}",ConsoleColor.White),
-            ($"Aggression: {_state.Player.Stats.Aggro}",ConsoleColor.White),
-            ($"Wisdom: {_state.Player.Stats.Wisdom}",ConsoleColor.White),
+            ($"Money: {_player.Stats.Money}",ConsoleColor.Yellow),
+            ($"Power: {_player.Stats.Power}",ConsoleColor.White),
+            ($"Agility: {_player.Stats.Agility}",ConsoleColor.White),
+            ($"Health: {_player.Stats.Health}",ConsoleColor.White),
+            ($"Luck: {_player.Stats.Luck}",ConsoleColor.White),
+            ($"Aggression: {_player.Stats.Aggro}",ConsoleColor.White),
+            ($"Wisdom: {_player.Stats.Wisdom}",ConsoleColor.White),
         });
     }
 
     public void CurrentHandsState(List<(string, ConsoleColor)> currentStats)
     {
         currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
-        var Right = _state.Player.Hands.Right;
-        var Left = _state.Player.Hands.Left;
+        var Right = _player.Hands.Right;
+        var Left = _player.Hands.Left;
         currentStats.Add(("Right hand: " + (Right?.MyToString() ?? ""), ConsoleColor.Cyan));
         currentStats.Add(("Left hand: " + (Left?.MyToString() ?? ""), ConsoleColor.Cyan));
-        currentStats.Add(($"Selected: { _state.Player.Attacks[_state.Player.ChoseAttackIndex].MyGetString() }", ConsoleColor.Cyan));
+        currentStats.Add(($"Selected: {_player.Attacks[_player.ChoseAttackIndex].MyGetString()}", ConsoleColor.Cyan));
     }
 
     public void CurrentItemOnFloorState(List<(string, ConsoleColor)> currentStats)
     {
         currentStats.Add((new string('#', 20), ConsoleColor.DarkCyan));
-        var itemsOnFloor = _state.EntityManager.GetItemsAt(_state.EntityManager.GetEntityPosition(_state.Player));
+        var itemsOnFloor = _state.EntityManager.GetItemsAt(_state.EntityManager.GetEntityPosition(_player));
         if (itemsOnFloor.Any())
         {
             var itemOnFloor = itemsOnFloor.First().MyToString();
@@ -197,12 +198,12 @@ public class Renderer
     }
     public void CurrentMonsterNearby(List<(string, ConsoleColor)> currentStats)
     {
-        if (_state.Player.Position == null)
+        if (_player.Position == null)
         {
             return;
         }
-        int px = _state.Player.Position.Value.X;
-        int py = _state.Player.Position.Value.Y;
+        int px = _player.Position.Value.X;
+        int py = _player.Position.Value.Y;
         for (int dx = -1; dx <= 1; dx++)
         {
             if (dx == 0)

@@ -22,9 +22,9 @@ public class Server
     private TcpListener _listener;
     private bool _isRunning;
     private readonly object _clientsLock = new object();
-    public event Action<string, TcpClient> MessageReceived = delegate { };
-    public event Action<TcpClient> ClientDisconnected = delegate { };
-    public event Action<TcpClient> ClientConnected = delegate { };
+    public event Action<string, int> MessageReceived = delegate { };
+    public event Action<int> ClientDisconnected = delegate { };
+    public event Action<int> ClientConnected = delegate { };
 
 
     public Server(int port, int maxClients)
@@ -40,12 +40,10 @@ public class Server
     {
         _listener.Start();
         _isRunning = true;
-        System.Console.WriteLine($"Server starts at port: {_port}");
 
         Task.Run(AcceptClientsAsync);
-
     }
-    private async Task HandleClient(TcpClient client)
+    private async Task HandleClient(TcpClient client, int clientID)
     {
         NetworkStream stream = client.GetStream();
         byte[] buffer = new byte[1024];
@@ -62,7 +60,7 @@ public class Server
 
                 string msg = Encoding.UTF8.GetString(buffer, 0, bytes);
 
-                MessageReceived?.Invoke(msg, client);
+                MessageReceived?.Invoke(msg, clientID);
             }
         }
         catch (Exception ex)
@@ -71,17 +69,17 @@ public class Server
         }
         finally
         {
-            DisconnectClient(client);
+            DisconnectClient(client, clientID);
         }
     }
     private async Task AcceptClientsAsync()
     {
+        int index = 1;
         while (_isRunning)
         {
             try
             {
                 TcpClient client = await _listener.AcceptTcpClientAsync();
-                System.Console.WriteLine("New client");
 
                 if (_clients.Count > _maxClients)
                 {
@@ -93,7 +91,9 @@ public class Server
                 _clients.Add(client);
 
 
-                _ = Task.Run(() => HandleClient(client));
+                _ = Task.Run(() => HandleClient(client, index));
+                index++;
+                ClientConnected?.Invoke(index);
             }
             catch (Exception ex)
             {
@@ -109,13 +109,14 @@ public class Server
             Send(client, message);
         }
     }
-    private void DisconnectClient(TcpClient client)
+    private void DisconnectClient(TcpClient client, int ClientsID)
     {
         if (!_clients.Contains(client))
         {
             return;
         }
         _clients.Remove(client);
+        ClientDisconnected?.Invoke(ClientsID);
         client.Close();
     }
     private void Send(TcpClient client, string message)
@@ -214,11 +215,11 @@ public class Client
 
         try
         {
-            while(_connected && _client.Connected)
+            while (_connected && _client.Connected)
             {
                 int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length);
 
-                if(bytesRead == 0)
+                if (bytesRead == 0)
                 {
                     break;
                 }
@@ -226,7 +227,7 @@ public class Client
                 MessageReceived?.Invoke(msg);
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             System.Console.WriteLine($"ReceiveMessageAsync fail: {ex.Message}");
         }

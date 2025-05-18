@@ -22,20 +22,25 @@ namespace Rogue
                     case "--server":
                         if (args.Length > i + 1)
                         {
+                            var messageQueue = new MessageQueue();
                             int port = int.Parse(args[i + 1]);
                             var server = new TCP.Server(port, 9);
-                            server.MessageReceived += (message, client) =>
-                            {
-                                System.Console.WriteLine(message);
-                            };
-                            server.ClientConnected += (client) => { System.Console.WriteLine("New client connected"); };
-                            server.ClientDisconnected += (client) => { System.Console.WriteLine("Client disconnected"); };
-                            // Game game = new Game();
-                            // game.run();
+                            server.MessageReceived += (message, clientID) => { messageQueue.EnqueueMessage(clientID, message, MessageType.input); };
+                            server.ClientConnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Connect", MessageType.addPlayer); };
+                            server.ClientDisconnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Disconnect", MessageType.deletePlayer); };
+
+                            Game game = new Game(messageQueue);
+
                             server.Start();
-                            System.Console.WriteLine("Server start");
-                            Console.ReadKey();
-                            server.Stop();
+
+                            try
+                            {
+                                await Task.Run(() => game.run());
+                            }
+                            finally
+                            {
+                                server.Stop();
+                            }
                         }
                         break;
                     case "--client":

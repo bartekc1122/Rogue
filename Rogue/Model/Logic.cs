@@ -1,5 +1,6 @@
 using System.Diagnostics.Tracing;
 using System.Drawing;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 
@@ -10,11 +11,28 @@ public class Logic
     public bool GameEnd = false;
     private GameState _gameState;
     private EntityManager _entityManager => _gameState.EntityManager;
-    private Player _player => _gameState.Player;
+    private Player _player = null!;
+
+    public void SelectPlayer(int index)
+    {
+        _player = _gameState.Players[index];
+    }
+    public void AddPlayer(int index)
+    {
+        var player = new Player();
+        _entityManager.AddEntity(player, new Point(1, 2*index+1));
+        _gameState.Players.Add(index, player);
+    }
+    public void DeletePlayer(int index)
+    {
+        _entityManager.RemoveEntity(_gameState.Players[index]);
+        _gameState.Players.Remove(index);
+    }
 
     public Logic(GameState gameState)
     {
         _gameState = gameState;
+        // _player = player;
     }
     public bool TryPickUpItem()
     {
@@ -138,5 +156,58 @@ public class Logic
         int received = monster.Damage - playerDefense < 0 ? 0 : monster.Damage - playerDefense;
         player.Stats.Health -= received;
         return $"Dealt: {damage} to {monster.Name}, Received: {received}";
+    }
+    public void MoveCursorUp()
+    {
+        _player.Inventory.MoveCursor(1);
+    }
+    public void MoveCursorDown()
+    {
+        _player.Inventory.MoveCursor(-1);
+    }
+    public void AttackSelect()
+    {
+        _player.ChoseAttackIndex = (_player.ChoseAttackIndex + 1) % _player.Attacks.Count;
+    }
+    public string WSAD(ConsoleKey? key)
+    {
+        Point newPosition = _gameState.EntityManager.GetEntityPosition(_player);
+        switch (key as ConsoleKey?)
+        {
+            case ConsoleKey.W:
+                newPosition.Y--;
+                var enemy = _gameState.EntityManager.MoveEntity(_player, newPosition);
+                if (enemy != null)
+                {
+                    return Fight(_player, enemy);
+                }
+                return "Moved down";
+            case ConsoleKey.S:
+                newPosition.Y++;
+                enemy = _gameState.EntityManager.MoveEntity(_player, newPosition);
+                if (enemy != null)
+                {
+                    return Fight(_player, enemy);
+                }
+                return "Moved up";
+            case ConsoleKey.A:
+                newPosition.X--;
+                enemy = _gameState.EntityManager.MoveEntity(_player, newPosition);
+                if (enemy != null)
+                {
+                    return Fight(_player, enemy);
+                }
+                return "Moved left";
+            case ConsoleKey.D:
+                newPosition.X++;
+                enemy = _gameState.EntityManager.MoveEntity(_player, newPosition);
+                if (enemy != null)
+                {
+                    return Fight(_player, enemy);
+                }
+                return "Moved right";
+            default:
+                return string.Empty;
+        }
     }
 }

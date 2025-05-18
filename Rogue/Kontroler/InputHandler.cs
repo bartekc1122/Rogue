@@ -31,54 +31,20 @@ abstract class AbstractInputHandler : IInputHandler
 
 class WSADHandler : AbstractInputHandler
 {
-    private GameState _gameState;
     private Logic _logic;
-    public WSADHandler(GameState gameState, Logic logic)
+    public WSADHandler( Logic logic)
     {
-        _gameState = gameState;
         _logic = logic;
     }
 
     public override object? Handle(object request)
     {
-        Point newPosition = _gameState.EntityManager.GetEntityPosition(_gameState.Player);
-        switch (request as ConsoleKey?)
-        {
-            case ConsoleKey.W:
-                newPosition.Y--;
-                var enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
-                if (enemy != null)
-                {
-                    return _logic.Fight(_gameState.Player, enemy);
-                }
-                return "Moved down";
-            case ConsoleKey.S:
-                newPosition.Y++;
-                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
-                if (enemy != null)
-                {
-                    return _logic.Fight(_gameState.Player, enemy);
-                }
-                return "Moved up";
-            case ConsoleKey.A:
-                newPosition.X--;
-                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
-                if (enemy != null)
-                {
-                    return _logic.Fight(_gameState.Player, enemy);
-                }
-                return "Moved left";
-            case ConsoleKey.D:
-                newPosition.X++;
-                enemy = _gameState.EntityManager.MoveEntity(_gameState.Player, newPosition);
-                if (enemy != null)
-                {
-                    return _logic.Fight(_gameState.Player, enemy);
-                }
-                return "Moved right";
-            default:
-                return base.Handle(request);
-        }
+       string response = _logic.WSAD(request as ConsoleKey?);
+       if(string.IsNullOrEmpty(response))
+       {
+            return base.Handle(request);
+       }
+       return response;
     }
 }
 
@@ -104,16 +70,16 @@ class PickUpHandler : AbstractInputHandler
 }
 class MoveCursorUpHandler : AbstractInputHandler
 {
-    private GameState _gameState;
-    public MoveCursorUpHandler(GameState gameState)
+    private Logic _logic;
+    public MoveCursorUpHandler(Logic logic)
     {
-        _gameState = gameState;
+        _logic = logic;
     }
     public override object? Handle(object request)
     {
         if ((request as ConsoleKey?) == ConsoleKey.J)
         {
-            _gameState.Player.Inventory.MoveCursor(1);
+            _logic.MoveCursorUp();
             return "Cursor moved up";
         }
         else
@@ -124,16 +90,16 @@ class MoveCursorUpHandler : AbstractInputHandler
 }
 class MoveCursorDownHandler : AbstractInputHandler
 {
-    private GameState _gameState;
-    public MoveCursorDownHandler(GameState gameState)
+    private Logic _logic;
+    public MoveCursorDownHandler(Logic logic)
     {
-        _gameState = gameState;
+        _logic = logic;
     }
     public override object? Handle(object request)
     {
         if ((request as ConsoleKey?) == ConsoleKey.K)
         {
-            _gameState.Player.Inventory.MoveCursor(-1);
+            _logic.MoveCursorDown();
             return "Cursor moved down";
         }
         else
@@ -284,16 +250,16 @@ class DrinkHandler : AbstractInputHandler
 }
 class AttackSelectHandler : AbstractInputHandler
 {
-    private GameState _gameState;
-    public AttackSelectHandler(GameState gameState)
+    private Logic _logic;
+    public AttackSelectHandler(Logic logic)
     {
-        _gameState = gameState;
+        _logic = logic;
     }
     public override object? Handle(object request)
     {
         if ((request as ConsoleKey?) == ConsoleKey.C)
         {
-            _gameState.Player.ChoseAttackIndex = (_gameState.Player.ChoseAttackIndex + 1) % _gameState.Player.Attacks.Count;
+            _logic.AttackSelect();
             return "Attack changed";
         }
         else
