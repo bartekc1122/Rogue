@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TCP;
 
@@ -64,12 +65,16 @@ namespace Rogue
                             {
                                 while (true)
                                 {
-                                    string message = Console.ReadLine()!;
-                                    if (message == "q")
+                                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                                    if (keyInfo.Key == ConsoleKey.Q)
                                     {
                                         break;
                                     }
-                                    client.SendMessage(message);
+                                    ConsoleKeyInfoDTO dto = new ConsoleKeyInfoDTO(keyInfo);
+
+
+                                    var jsonMessage = JsonSerializer.Serialize(dto);
+                                    client.SendMessage(jsonMessage);
                                 }
                                 client.Disconnect();
                             }

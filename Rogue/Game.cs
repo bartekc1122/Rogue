@@ -1,6 +1,32 @@
+using Microsoft.Win32;
 using Rogue;
 using System.ComponentModel;
 using System.Drawing;
+using System.Text.Json;
+public class ConsoleKeyInfoDTO
+{
+    public char KeyChar { get; set; }
+    public ConsoleKey Key { get; set; }
+    public ConsoleModifiers Modifiers { get; set; }
+
+    public ConsoleKeyInfoDTO(ConsoleKeyInfo cki)
+    {
+        KeyChar = cki.KeyChar;
+        Key = cki.Key;
+        Modifiers = cki.Modifiers;
+    }
+    public ConsoleKeyInfoDTO() { }
+    public ConsoleKeyInfo ToConsoleKeyInfo()
+    {
+        bool shift = (Modifiers & ConsoleModifiers.Shift) != 0;
+        bool alt = (Modifiers & ConsoleModifiers.Alt) != 0;
+        bool control = (Modifiers & ConsoleModifiers.Control) != 0;
+
+        return new ConsoleKeyInfo(KeyChar, Key, shift, alt, control);
+    }
+}
+
+
 class Game
 {
     private readonly GameState _state;
@@ -70,8 +96,10 @@ class Game
     {
         while (true)
         {
-            var key = Console.ReadKey(true).Key;
-            _messageQueue.EnqueueMessage(0, key.ToString(), MessageType.input);
+            var keyInfo = Console.ReadKey(true);
+            ConsoleKeyInfoDTO dto = new ConsoleKeyInfoDTO(keyInfo);
+            var jsonMessage = JsonSerializer.Serialize(dto);
+            _messageQueue.EnqueueMessage(0, jsonMessage, MessageType.input);
         }
     }
     private void ProcessMessage(Message message)
@@ -80,7 +108,10 @@ class Game
         {
             case MessageType.input:
                 _logic.SelectPlayer(message.ClientID);
-                var valid = _inputHandler.Handle((ConsoleKey)char.Parse((string)message.Content!));
+
+                var receivedData = JsonSerializer.Deserialize<ConsoleKeyInfoDTO>((string)message.Content!);
+                var key = receivedData!.ToConsoleKeyInfo();
+                var valid = _inputHandler.Handle(key.Key);
                 if ((valid as int?) == -1)
                 {
                     _state.LastAction = "Invalid key";
