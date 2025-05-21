@@ -1,7 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace Rogue;
 public class Inventory
 {
+    [JsonInclude]
     private List<IItem> _inventory = new();
+    [JsonInclude]
     private int _cursor = -1;
     public int Cursor
     {

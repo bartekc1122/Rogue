@@ -1,17 +1,20 @@
 namespace Rogue;
 using System.Drawing;
+using System.Text.Json.Serialization;
+
 public class AggroWeapon : WeaponDecorator
 {
+    public AggroWeapon() : base() { }
+    [JsonConstructor]
+    public AggroWeapon(IWeapon _weapon) : base(_weapon)
+    {
+    }
     public override IEntity Clone()
     {
         return new AggroWeapon((IWeapon)_weapon.Clone());
     }
-
-    public AggroWeapon(IWeapon weapon) : base(weapon)
-    {
-    }
     public override ConsoleColor Color => ConsoleColor.DarkRed;
-    public override int Damage => _weapon.Damage + 2;
+    public override int Damage => base.Damage + 2;
 
     public override void ApplyOnHanded(Player player)
     {

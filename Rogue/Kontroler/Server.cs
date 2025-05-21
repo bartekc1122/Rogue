@@ -18,6 +18,7 @@ public class Server
     private int _maxClients;
     private int _port;
     private List<TcpClient> _clients;
+    private Dictionary<TcpClient, int> _clientMap;
 
     private TcpListener _listener;
     private bool _isRunning;
@@ -31,9 +32,11 @@ public class Server
     {
         _port = port;
         _clients = new List<TcpClient>();
+        _clientMap = new Dictionary<TcpClient, int>();
         _isRunning = false;
         _listener = new TcpListener(IPAddress.Loopback, port);
         _maxClients = maxClients;
+
     }
 
     public void Start()
@@ -49,6 +52,8 @@ public class Server
         byte[] buffer = new byte[1024];
         try
         {
+            ClientConnected?.Invoke(clientID);
+            Send(client, $"CLIENT_ID:{clientID}");
             while (client.Connected && _isRunning == true)
             {
                 int bytes = await stream.ReadAsync(buffer, 0, buffer.Length);
@@ -74,7 +79,7 @@ public class Server
     }
     private async Task AcceptClientsAsync()
     {
-        int index = 1;
+        int index = 0;
         while (_isRunning)
         {
             try
@@ -89,11 +94,11 @@ public class Server
                 }
 
                 _clients.Add(client);
+                _clientMap[client] = index;
 
 
                 _ = Task.Run(() => HandleClient(client, index));
                 index++;
-                ClientConnected?.Invoke(index);
             }
             catch (Exception ex)
             {
@@ -102,11 +107,19 @@ public class Server
             }
         }
     }
-    private void BroadcastGameState(string message)
+    public void Broadcast(string message)
     {
-        foreach (var client in _clients.ToArray())
+        foreach (var client in _clients.ToList())
         {
-            Send(client, message);
+            if (client.Connected)
+            {
+                Send(client, message);
+            }
+            else
+            {
+                int idToDisconnect = _clientMap.TryGetValue(client, out int id) ? id : -1;
+                DisconnectClient(client, idToDisconnect);
+            }
         }
     }
     private void DisconnectClient(TcpClient client, int ClientsID)
@@ -116,6 +129,7 @@ public class Server
             return;
         }
         _clients.Remove(client);
+        _clientMap.Remove(client);
         ClientDisconnected?.Invoke(ClientsID);
         client.Close();
     }
@@ -123,7 +137,7 @@ public class Server
     {
         try
         {
-            byte[] buffer = Encoding.UTF8.GetBytes(message);
+            byte[] buffer = Encoding.UTF8.GetBytes(message + "\n");
             client.GetStream().Write(buffer, 0, buffer.Length);
         }
         catch (Exception ex)
@@ -153,6 +167,7 @@ public class Client
     private System.Net.Sockets.TcpClient _client = null!;
     private NetworkStream _stream = null!;
     private bool _connected = false;
+    private StringBuilder _messageBuffer = new StringBuilder();
 
     public event Action<string> MessageReceived = delegate { };
     public event Action Disconnected = delegate { };
@@ -167,7 +182,7 @@ public class Client
             _stream = _client.GetStream();
             _connected = true;
 
-            // Task.Run()
+            _ = Task.Run(ReceiveMessageAsync);
             return true;
         }
         catch (Exception ex)
@@ -185,7 +200,7 @@ public class Client
 
         try
         {
-            byte[] buffer = Encoding.UTF8.GetBytes(message);
+            byte[] buffer = Encoding.UTF8.GetBytes(message + '\n');
             _stream.Write(buffer, 0, buffer.Length);
             return true;
         }
@@ -224,7 +239,8 @@ public class Client
                     break;
                 }
                 string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                MessageReceived?.Invoke(msg);
+                _messageBuffer.Append(msg);
+                ProcessMessageBuffer();
             }
         }
         catch (Exception ex)
@@ -235,6 +251,22 @@ public class Client
         {
             Disconnect();
         }
+    }
+    private void ProcessMessageBuffer()
+    {
+        string allData = _messageBuffer.ToString();
+        int newlineIndex;
+        while ((newlineIndex = allData.IndexOf('\n')) >= 0)
+        {
+            string completeMessage = allData.Substring(0, newlineIndex);
+            allData = allData.Substring(newlineIndex + 1);
+
+            if (!string.IsNullOrWhiteSpace(completeMessage))
+            {
+                MessageReceived?.Invoke(completeMessage);
+            }
+        }
+        _messageBuffer.Clear().Append(allData);
     }
 
 

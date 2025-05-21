@@ -34,7 +34,13 @@ class Game
     private readonly Renderer _renderer;
     private IInputHandler _inputHandler;
     private MessageQueue _messageQueue;
+    private TCP.Server? _tcpServer;
     // private ISubject _subject;
+    public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
+    {
+        WriteIndented = false,
+        
+    };
     public void run()
     {
         Console.CursorVisible = false;
@@ -47,12 +53,13 @@ class Game
             _renderer.DrawEntities();
             _renderer.DrawStats(_state.LastAction);
 
-            if (_messageQueue.WaitForMessage(5000))
+            if (_messageQueue.WaitForMessage(2000))
             {
                 var msg = _messageQueue.DequeueMessage();
                 if (msg != null)
                 {
                     ProcessMessage(msg);
+                    BroadcastGameState();
                 }
             }
             // HandleInput();
@@ -66,9 +73,18 @@ class Game
         }
         _renderer.ClearCMD();
     }
-
-    public Game(MessageQueue messageQueue)
+    private void BroadcastGameState()
     {
+        if (_tcpServer != null)
+        {
+            _state.PrepareForSerialization(); // Prepare entities list, etc.
+            var jsonGameState = JsonSerializer.Serialize(_state, DefaultJsonSerializerOptions);
+            _tcpServer.Broadcast(jsonGameState);
+        }
+    }
+    public Game(MessageQueue messageQueue, TCP.Server? tcpServer = null)
+    {
+        _tcpServer = tcpServer;
         _messageQueue = messageQueue;
         DungeonBuilder dungeonBuilder = new DungeonBuilder();
         ManualBuilder manualBuilder = new ManualBuilder();
@@ -83,9 +99,8 @@ class Game
         Director.ConstructClassicDungeon(inputBuilder);
         _inputHandler = inputBuilder.GetProduct();
         _logic.AddPlayer(0);
-
         _renderer = Renderer.Instance;
-        _renderer.SetGameState(_state);
+        _renderer.SetGameState(_state, 0);
 
         // _subject = new Subject();
         // _subject.Attach(_state.Players);
@@ -110,13 +125,17 @@ class Game
                 _logic.SelectPlayer(message.ClientID);
 
                 var receivedData = JsonSerializer.Deserialize<ConsoleKeyInfoDTO>((string)message.Content!);
+                if (receivedData == null)
+                {
+                    _state.LastAction = "Failed to deserialize input.";
+                }
                 var key = receivedData!.ToConsoleKeyInfo();
                 var valid = _inputHandler.Handle(key.Key);
                 if ((valid as int?) == -1)
                 {
                     _state.LastAction = "Invalid key";
                 }
-                else if ((valid as string) != "")
+                else if ((valid as string) != "" && (valid as string) != null)
                 {
                     // _subject.Notify();
                     _state.LastAction = (valid as string)!;
@@ -128,13 +147,22 @@ class Game
                 break;
             case MessageType.addPlayer:
                 _logic.AddPlayer(message.ClientID);
-                _state.LastAction = "New player!";
+                _state.LastAction = $"Player {message.ClientID} connected!";
                 break;
             case MessageType.deletePlayer:
                 _logic.DeletePlayer(message.ClientID);
+                _state.LastAction = $"Player {message.ClientID} disconnected.";
                 break;
             default:
                 break;
+        }
+        foreach (var player in _state.Players.Values)
+        {
+
+        }
+        if (_tcpServer != null)
+        {
+            BroadcastGameState();
         }
     }
 }

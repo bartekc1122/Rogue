@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace Rogue;
 
 public class Manual
 {
+    [JsonInclude]
     private List<String> _manual;
     public Manual()
     {

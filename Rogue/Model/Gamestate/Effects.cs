@@ -1,8 +1,16 @@
+using System.Text.Json.Serialization;
+
 namespace Rogue;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$effectType")]
+[JsonDerivedType(typeof(Strong), "strong_effect")]
+[JsonDerivedType(typeof(Luck), "luck_effect")]
+[JsonDerivedType(typeof(Aggro), "aggro_effect")]
 public abstract class AEffect
 {
+    [JsonInclude]
     public int Duration { protected set; get; }
+    protected AEffect() {}
     public AEffect(int duration)
     {
         Duration = duration;
@@ -48,9 +56,10 @@ public abstract class AEffect
 
 public class Strong : AEffect
 {
+    public Strong() : base() { }
+    [JsonConstructor]
     public Strong(int duration) : base(duration)
     { }
-
     public override int ApplyPower(int power)
     {
         return 5;
@@ -67,7 +76,10 @@ public class Strong : AEffect
 
 public class Luck : AEffect
 {
+    [JsonInclude]
     private int _luck;
+    public Luck() : base() { }
+    [JsonConstructor]
     public Luck(int duration) : base(duration)
     {
         _luck = duration;
@@ -93,6 +105,8 @@ public class Luck : AEffect
 }
 public class Aggro : AEffect
 {
+    public Aggro() : base() { }
+    [JsonConstructor]
     public Aggro(int duration) : base(duration)
     {
     }

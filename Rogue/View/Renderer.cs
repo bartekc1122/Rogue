@@ -10,19 +10,24 @@ public class Renderer
     private GameState _state = new GameState();
     private readonly Dictionary<Point, (char Symbol, ConsoleColor color)> _lastFrame = new();
     private readonly List<(string line, ConsoleColor color)> _lastStats = new();
-    private Player _player => _state.Players[0];
+    private Player _player = null!;
 
-    public void SetGameState(GameState gameState)
+    public void SetGameState(GameState gameState, int playerID)
     {
         _state = gameState;
+        _player = _state.Players[playerID];
     }
     public void DrawEntities()
     {
+        if (_state?.EntityManager == null) { return; }
         var currentFrame = new Dictionary<Point, (char Symbol, ConsoleColor color)>();
 
-        foreach (var entity in _state.EntityManager.GetAllEntities().OrderBy(e => e.ZIndex).Reverse())
+        foreach (var entity in _state.EntityManager.GetAllEntities().OrderBy(e => e.ZIndex))
         {
-            currentFrame[entity.Position!.Value] = (entity.Symbol, entity.Color);
+            if (entity.Position.HasValue)
+            {
+                currentFrame[entity.Position!.Value] = (entity.Symbol, entity.Color);
+            }
         }
 
         var toUpdate = ToUpdateMap(currentFrame);
@@ -78,8 +83,11 @@ public class Renderer
         int inx = _state.Map.GetLength(0);
         foreach (var line in manual.GetManual())
         {
-            Console.SetCursorPosition(0, inx);
-            Console.Write(line);
+            if (inx < Console.WindowHeight)
+            {
+                Console.SetCursorPosition(0, inx);
+                Console.Write(line.PadRight(Console.WindowWidth > Constants.MapWidth ? Constants.MapWidth : Console.WindowWidth - 1));
+            }
             inx++;
         }
     }
@@ -100,10 +108,10 @@ public class Renderer
         for (int i = 0; i < toUpdate.Count; i++)
         {
             Console.ForegroundColor = toUpdate[i].color;
-            Console.SetCursorPosition(Constants.MapWidth, toUpdate[i].idx);
+            Console.SetCursorPosition(Constants.MapWidth + 1, toUpdate[i].idx);
             System.Console.Write(toUpdate[i].line);
-            Console.ResetColor();
         }
+        Console.ResetColor();
         _lastStats.Clear();
         for (int i = 0; i < currentStats.Count; i++)
         {

@@ -1,19 +1,21 @@
+using System.Text.Json.Serialization;
 using Rogue;
 
 public class CursedWeapon : WeaponDecorator
 {
-    public CursedWeapon(IWeapon weapon) : base(weapon)
+    public CursedWeapon() : base() { }
+    [JsonConstructor]
+    public CursedWeapon(IWeapon _weapon) : base(_weapon)
     { }
-
 
     public override ConsoleColor Color => ConsoleColor.DarkRed;
 
-    public override int Damage => _weapon.Damage - 2;
+    public override int Damage => base.Damage - 2;
 
 
     public override void ApplyOnHanded(Player player)
     {
-        _weapon.ApplyOnDeHanded(player);
+        _weapon.ApplyOnHanded(player);
         player.Stats.Luck -= 1;
     }
     public override void ApplyOnDeHanded(Player player)

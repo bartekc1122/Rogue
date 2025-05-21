@@ -1,17 +1,21 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
 namespace Rogue;
 public abstract class WeaponDecorator : IWeapon
 {
-    protected readonly IWeapon _weapon;
-
+    [JsonInclude]
+    protected IWeapon _weapon;
+    protected WeaponDecorator() { _weapon = null!; }
     public WeaponDecorator(IWeapon weapon)
     {
         _weapon = weapon;
     }
 
+    [JsonIgnore]
     public IWeapon BaseWeapon => _weapon;
+
     public abstract (int damage, int defense) Accept(ICombatVisitor visitor, Player player);
 
     public virtual char Symbol => _weapon.Symbol;
@@ -34,7 +38,7 @@ public abstract class WeaponDecorator : IWeapon
 
     public virtual void ApplyOnHanded(Player player)
     {
-        _weapon.ApplyOnDeHanded(player);
+        _weapon.ApplyOnHanded(player);
     }
     public virtual void ApplyOnDeHanded(Player player)
     {

@@ -1,9 +1,13 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace Rogue;
+
 public class Hands
 {
+    [JsonInclude]
     public IItem? Right;
+    [JsonInclude]
     public IItem? Left;
     public Hands()
     {
@@ -12,11 +16,11 @@ public class Hands
     }
     public bool RightEquip(IItem item)
     {
-        if(Right != null)
+        if (Right != null)
         {
             return false;
         }
-        if(item.IsTwoHanded)
+        if (item.IsTwoHanded)
         {
             return TwoHandEquip(item);
         }
@@ -25,11 +29,11 @@ public class Hands
     }
     public bool LeftEquip(IItem item)
     {
-        if(Left != null)
+        if (Left != null)
         {
             return false;
         }
-        if(item.IsTwoHanded)
+        if (item.IsTwoHanded)
         {
             return TwoHandEquip(item);
         }
@@ -38,7 +42,7 @@ public class Hands
     }
     private bool TwoHandEquip(IItem item)
     {
-        if(Right == null  && Left == null)
+        if (Right == null && Left == null)
         {
             Right = item;
             Left = item;
@@ -48,26 +52,26 @@ public class Hands
     }
     public IItem? RightUnequip()
     {
-        if(Right == null)
+        if (Right == null)
         {
             return null;
         }
-        if(Right.IsTwoHanded)
+        if (Right.IsTwoHanded)
         {
 
             return TwoHandUnequip();
         }
-        var item  = Right;
+        var item = Right;
         Right = null;
         return item;
     }
     public IItem? LeftUnequip()
     {
-        if(Left == null)
+        if (Left == null)
         {
             return null;
         }
-        if(Left.IsTwoHanded)
+        if (Left.IsTwoHanded)
         {
             return TwoHandUnequip();
         }
@@ -77,10 +81,10 @@ public class Hands
     }
     private IItem? TwoHandUnequip()
     {
-        if(Right == Left && Right != null)
+        if (Right == Left && Right != null)
         {
             var item = Right;
-            Right= null;
+            Right = null;
             Left = null;
             return item;
         }

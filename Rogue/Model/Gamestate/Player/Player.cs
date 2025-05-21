@@ -1,6 +1,7 @@
 using Rogue;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 public class Player : IEntity, IObserver
 {
@@ -8,14 +9,16 @@ public class Player : IEntity, IObserver
     public Point? Position { get; set; }
     public char Symbol { get => '\u00B6'; }
     public ConsoleColor Color { get => ConsoleColor.Blue; }
-    public Statistic Stats;
-    public Hands Hands;
-    public List<AEffect> effects;
-    public List<ICombatVisitor> Attacks;
-    public int ChoseAttackIndex;
-    public int Zindex;
+    public Statistic Stats { get; set; }
+    public Hands Hands { get; set; }
+    public List<AEffect> effects { get; set; }
+    [JsonInclude]
+    public List<ICombatVisitor> Attacks { get; set; }
+    public int ChoseAttackIndex { get; set; }
+    [JsonIgnore]
+    public int Zindex { get; set; }
 
-    public Inventory Inventory;
+    public Inventory Inventory { get; set; }
     public Player()
     {
         Zindex = 3;
@@ -28,7 +31,19 @@ public class Player : IEntity, IObserver
     }
     public IEntity Clone()
     {
-        return new Player();
+        var newPlayer = new Player
+        {
+            Position = this.Position,
+            Stats = new Statistic(null!),
+            Inventory = new Inventory(),
+            Hands = new Hands(),
+            effects = new List<AEffect>(this.effects.Select(e => e.Clone(e))),
+            Attacks = new List<ICombatVisitor>(this.Attacks),
+            ChoseAttackIndex = this.ChoseAttackIndex,
+            Zindex = this.Zindex
+        };
+        newPlayer.Stats.Player = newPlayer;
+        return newPlayer;
     }
 
     public void Update(ISubject subject)
@@ -58,9 +73,12 @@ public class Statistic
         get
         {
             int result = _power;
-            foreach (var effect in Player.effects)
+            if (Player?.effects != null)
             {
-                result += effect.ApplyPower(result);
+                foreach (var effect in Player.effects)
+                {
+                    result += effect.ApplyPower(result);
+                }
             }
             return result >= 0 ? result : 0;
         }
@@ -150,6 +168,7 @@ public class Statistic
         }
         set => _money = value;
     }
+    [JsonIgnore]
     public Player Player { get; set; }
     public Statistic(Player player, int power = 10, int agility = 15, int health = 20, int luck = 1, int aggro = 3, int wisdom = 10, int money = 0)
     {
