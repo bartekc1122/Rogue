@@ -19,116 +19,123 @@ internal class Program
         {
             return;
         }
-        for (int i = 0; i < args.Length; i++)
+
+        switch (args[0])
         {
-            switch (args[i])
-            {
-                case "--server":
-                    if (args.Length > i + 1)
-                    {
-                        var messageQueue = new MessageQueue();
-                        int port = int.Parse(args[i + 1]);
-                        var server = new TCP.Server(port, 9);
-                        server.MessageReceived += (message, clientID) => { messageQueue.EnqueueMessage(clientID, message, MessageType.input); };
-                        server.ClientConnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Connect", MessageType.addPlayer); };
-                        server.ClientDisconnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Disconnect", MessageType.deletePlayer); };
+            case "--server":
+                await Server(args[1]);
+                break;
+            case "--client":
+                await Client(args[1]);
+                break;
+        }
+    }
+    static private async Task Server(string parameters)
+    {
+        if (string.IsNullOrEmpty(parameters))
+        {
+            return;
+        }
+        var messageQueue = new MessageQueue();
+        int port = int.Parse(parameters);
+        const int MaxClients = 9;
+        var server = new TCP.Server(port, MaxClients);
+        server.MessageReceived += (message, clientID) => { messageQueue.EnqueueMessage(clientID, message, MessageType.input); };
+        server.ClientConnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Connect", MessageType.addPlayer); };
+        server.ClientDisconnected += (clientID) => { messageQueue.EnqueueMessage(clientID, "Disconnect", MessageType.deletePlayer); };
 
-                        Game game = new Game(messageQueue, server);
+        Game game = new Game(messageQueue, server);
 
-                        server.Start();
+        server.Start();
 
-                        try
-                        {
-                            await Task.Run(() => game.run());
-                        }
-                        finally
-                        {
-                            server.Stop();
-                        }
-                    }
-                    break;
-                case "--client":
-                    if (args.Length > i + 1)
-                    {
-                        string addressPort = args[i + 1];
-                        var parts = addressPort.Split(":");
-                        if (parts.Length != 2)
-                        {
-                            return;
-                        }
-                        string address = parts[0];
-                        int port = int.Parse(parts[1]);
-
-                        var client = new TCP.Client();
-                        int myClientID = -1;
-                        Renderer renderer = Renderer.Instance;
-                        GameState? clientGameState = null;
-                        client.MessageReceived += (message) =>
-                        {
-                            if (message.StartsWith("CLIENT_ID:"))
-                            {
-                                if (int.TryParse(message.Substring("CLIENT_ID:".Length), out int receivedID))
-                                {
-                                    myClientID = receivedID;
-                                }
-                            }
-                            else if (message == "SERVER_FULL")
-                            {
-                                client.Disconnect();
-                            }
-                            else
-                            {
-                                var receivedState = JsonSerializer.Deserialize<GameState>(message, Game.DefaultJsonSerializerOptions);
-                                if (clientGameState == null)
-                                {
-
-                                    receivedState!.InitializeAfterDeserialization();
-                                    clientGameState = receivedState;
-                                    if (myClientID != -1 && clientGameState.Players.ContainsKey(myClientID))
-                                    {
-                                        renderer.SetGameState(clientGameState, myClientID);
-                                        renderer.DrawMap(receivedState.manual);
-                                    }
-
-                                }
-                                receivedState!.InitializeAfterDeserialization();
-                                clientGameState = receivedState;
-                                if (myClientID != -1 && clientGameState.Players.ContainsKey(myClientID))
-                                {
-                                    renderer.SetGameState(clientGameState, myClientID);
-                                    renderer.DrawEntities();
-                                    renderer.DrawStats(clientGameState.LastAction);
-                                }
-
-                            }
-                        };
-                        client.Disconnected += () => { System.Console.WriteLine("Disconnected"); };
-                        bool connected = await client.ConnectAsync(address, port);
-
-                        if (connected)
-                        {
-                            while (true)
-                            {
-                                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                                if (keyInfo.Key == ConsoleKey.Q)
-                                {
-                                    break;
-                                }
-                                ConsoleKeyInfoDTO dto = new ConsoleKeyInfoDTO(keyInfo);
-
-
-                                var jsonMessage = JsonSerializer.Serialize(dto);
-                                client.SendMessage(jsonMessage);
-                            }
-                            client.Disconnect();
-                            Console.Clear();
-                        }
-                    }
-                    else { System.Console.WriteLine("Cannot connect to the server!"); }
-                    break;
-            }
+        try
+        {
+            await Task.Run(() => game.run());
+        }
+        finally
+        {
+            server.Stop();
         }
 
+    }
+    static private async Task Client(string parameters)
+    {
+        if (string.IsNullOrEmpty(parameters))
+        {
+            return;
+        }
+        var parts = parameters.Split(":");
+        if (parts.Length != 2)
+        {
+            return;
+        }
+        string address = parts[0];
+        int port = int.Parse(parts[1]);
+
+        var client = new TCP.Client();
+        int myClientID = -1;
+        Renderer renderer = Renderer.Instance;
+        GameState? clientGameState = null;
+        client.MessageReceived += (message) => { ClientMessageReceived(message, ref myClientID, ref clientGameState, ref renderer, ref client); };
+        client.Disconnected += () => { System.Console.WriteLine("Disconnected"); };
+        bool connected = await client.ConnectAsync(address, port);
+
+        if (!connected)
+        {
+            System.Console.WriteLine("Cannot connect to the server!");
+
+        }
+        while (true)
+        {
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+            if (keyInfo.Key == ConsoleKey.Q)
+            {
+                break;
+            }
+            ConsoleKeyInfoDTO dto = new ConsoleKeyInfoDTO(keyInfo);
+
+
+            var jsonMessage = JsonSerializer.Serialize(dto);
+            client.SendMessage(jsonMessage);
+        }
+        client.Disconnect();
+        Console.Clear();
+    }
+    public static void ClientMessageReceived(string message, ref int myClientID, ref GameState? clientGameState, ref Renderer renderer, ref Client client)
+    {
+
+        if (message.StartsWith("CLIENT_ID:") && int.TryParse(message.Substring("CLIENT_ID:".Length), out int receivedID))
+        {
+            myClientID = receivedID;
+        }
+        else if (message == "SERVER_FULL")
+        {
+            client.Disconnect();
+        }
+        else
+        {
+            var receivedState = JsonSerializer.Deserialize<GameState>(message, Game.DefaultJsonSerializerOptions);
+            if (clientGameState == null)
+            {
+                receivedState!.InitializeAfterDeserialization();
+                clientGameState = receivedState;
+                if (myClientID != -1 && clientGameState.Players.ContainsKey(myClientID))
+                {
+                    renderer.SetGameState(clientGameState, myClientID);
+                    renderer.DrawMap(receivedState.manual);
+                }
+
+            }
+            receivedState!.InitializeAfterDeserialization();
+            clientGameState = receivedState;
+            if (myClientID != -1 && clientGameState.Players.ContainsKey(myClientID))
+            {
+                renderer.SetGameState(clientGameState, myClientID);
+                renderer.DrawEntities();
+                renderer.DrawStats(clientGameState.LastAction);
+            }
+
+        }
     }
 }
 
