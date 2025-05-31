@@ -5,5 +5,6 @@ public interface IMonster : IEntity
     int Damage { get; }
     int Health { get; set; }
     int Defense { get; }
+    IBehavior Behavior { get; set; }
 
 }

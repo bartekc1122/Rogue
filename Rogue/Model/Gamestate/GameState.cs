@@ -85,7 +85,6 @@ public class GameState
         if (EntityManager != null)
         {
             AllEntitiesForSerialization = EntityManager.GetAllEntities()
-                                                     .Where(e => e.Position != null)
                                                      .ToList();
         }
     }
@@ -93,13 +92,22 @@ public class GameState
     public void InitializeAfterDeserialization()
     {
         this.EntityManager = new EntityManager(this);
-        if (this.AllEntitiesForSerialization != null)
+        if (this.AllEntitiesForSerialization == null)
         {
-            foreach (var entity in this.AllEntitiesForSerialization)
+            return;
+        }
+        foreach (var entity in this.AllEntitiesForSerialization)
+        {
+            if (entity.Position.HasValue)
             {
-                if (entity.Position.HasValue)
+                var position = entity.Position.Value;
+                this.EntityManager.AddEntity(entity, position);
+            }
+            if (entity is IMonster monster)
+            {
+                if (monster.Behavior is AggressiveBehavior aggressiveBehavior)
                 {
-                    this.EntityManager.AddEntity(entity, entity.Position.Value);
+                    aggressiveBehavior.GameState = this;
                 }
             }
         }

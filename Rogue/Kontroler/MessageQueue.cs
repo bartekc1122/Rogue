@@ -11,7 +11,8 @@ public enum MessageType
 {
     addPlayer,
     input,
-    deletePlayer
+    deletePlayer,
+    moveEntity
 }
 
 public class Message

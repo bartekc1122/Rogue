@@ -2,7 +2,7 @@
   "profiles": {
     "Rogue": {
       "commandName": "Project",
-      "commandLineArgs": "--server 8888"
+      "commandLineArgs": "--server 1111"
     }
   }
 }

@@ -65,12 +65,13 @@ public class EntityManager
         return entity.Position!.Value;
     }
 
-    private bool IsPositionValid(Point position)
+    public bool IsPositionValid(Point position)
     {
         bool isFool = position.X > 0 && position.X < Constants.MapWidth
         && position.Y > 0 && position.Y < Constants.MapHeight && _state.Map[position.Y, position.X] != TerrainType.Wall;
         bool isMonster = _entityGrid[position.Y, position.X].OfType<IMonster>().Any();
-        return isFool && !isMonster;
+        bool isPlayer = _entityGrid[position.Y, position.X].OfType<Player>().Any();
+        return isFool && !isMonster && !isPlayer;
     }
     public List<IEntity> GetAllEntities()
     {

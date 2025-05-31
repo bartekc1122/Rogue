@@ -175,8 +175,8 @@ public class DungeonBuilder : IBuilder
     public void EnemyGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10, 5), 2),
-            (new Monster("Crab", '\u2340', ConsoleColor.Blue, 24, 34, 8), 2),
+            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10, 5, new TimidBehavior(_gameState)), 2),
+            (new Monster("Crab", '\u2340', ConsoleColor.Blue, 24, 34, 8, new AggressiveBehavior(_gameState)), 2),
         };
         int attempts = 999;
         int deployedItems = -1;
@@ -192,7 +192,7 @@ public class DungeonBuilder : IBuilder
                 continue;
             }
             var item = SelectItem(DecoratedWeaponList);
-            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5, 5, 1), deployPoint);
+            _gameState.EntityManager.AddEntity(item ?? new Monster("Rat", 'R', ConsoleColor.DarkYellow, 5, 5, 1, new PassiveBehavior()), deployPoint);
             deployedItems++;
         }
     }

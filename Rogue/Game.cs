@@ -46,6 +46,7 @@ class Game
         Console.CursorVisible = false;
 
         Task.Run(() => HandleInput());
+        Task.Run(() => EnemyMovementLoop());
         _renderer.DrawMap(_state.manual);
         while (!_logic.GameEnd)
         {
@@ -53,7 +54,7 @@ class Game
             _renderer.DrawEntities();
             _renderer.DrawStats(_state.LastAction);
 
-            if (_messageQueue.WaitForMessage(2000))
+            if (_messageQueue.WaitForMessage(200))
             {
                 var msg = _messageQueue.DequeueMessage();
                 if (msg != null)
@@ -106,7 +107,39 @@ class Game
         // _subject.Attach(_state.Players);
     }
 
+    public class EntityPositionToMove
+    {
+        public IEntity Entity;
+        public Point Position;
+        public EntityPositionToMove(IEntity entity, Point position)
+        {
+            Entity = entity;
+            Position = position;
+        }
+    }
+    private void EnemyMovementLoop()
+    {
+        while (true)
+        {
+            Thread.Sleep(1000);
+            foreach (var entity in _state.EntityManager.GetAllEntities())
+            {
+                if (!(entity is IMonster)) { continue; }
+                var monster = (IMonster)entity;
+                var newPosition = monster.Behavior.MoveToNewPosition(monster);
+                if (newPosition == null)
+                {
+                    continue;
+                }
+                var sendInfo = new EntityPositionToMove(monster, (Point)newPosition);
 
+                _messageQueue.EnqueueMessage(0, sendInfo, MessageType.moveEntity);
+
+                // _state.EntityManager.MoveEntity(monster, (Point)newPosition);
+            }
+        }
+
+    }
     private void HandleInput()
     {
         while (true)
@@ -152,6 +185,10 @@ class Game
             case MessageType.deletePlayer:
                 _logic.DeletePlayer(message.ClientID);
                 _state.LastAction = $"Player {message.ClientID} disconnected.";
+                break;
+            case MessageType.moveEntity:
+                var info = (EntityPositionToMove)message.Content!;
+                _state.EntityManager.MoveEntity(info.Entity, info.Position);
                 break;
             default:
                 break;
