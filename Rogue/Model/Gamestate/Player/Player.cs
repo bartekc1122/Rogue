@@ -170,7 +170,7 @@ public class Statistic
     }
     [JsonIgnore]
     public Player Player { get; set; }
-    public Statistic(Player player, int power = 10, int agility = 15, int health = 20, int luck = 1, int aggro = 3, int wisdom = 10, int money = 0)
+    public Statistic(Player player, int power = 10, int agility = 15, int health = 50, int luck = 1, int aggro = 3, int wisdom = 10, int money = 0)
     {
         Player = player;
         _power = power;

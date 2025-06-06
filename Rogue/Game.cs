@@ -39,7 +39,7 @@ class Game
     public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
     {
         WriteIndented = false,
-        
+
     };
     public void run()
     {
@@ -76,12 +76,10 @@ class Game
     }
     private void BroadcastGameState()
     {
-        if (_tcpServer != null)
-        {
-            _state.PrepareForSerialization(); // Prepare entities list, etc.
-            var jsonGameState = JsonSerializer.Serialize(_state, DefaultJsonSerializerOptions);
-            _tcpServer.Broadcast(jsonGameState);
-        }
+        if (_tcpServer == null) { return; }
+        _state.PrepareForSerialization();
+        var jsonGameState = JsonSerializer.Serialize(_state, DefaultJsonSerializerOptions);
+        _tcpServer.Broadcast(jsonGameState);
     }
     public Game(MessageQueue messageQueue, TCP.Server? tcpServer = null)
     {
@@ -192,10 +190,6 @@ class Game
                 break;
             default:
                 break;
-        }
-        foreach (var player in _state.Players.Values)
-        {
-
         }
         if (_tcpServer != null)
         {

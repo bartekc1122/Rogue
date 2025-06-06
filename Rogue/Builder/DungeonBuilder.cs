@@ -175,8 +175,8 @@ public class DungeonBuilder : IBuilder
     public void EnemyGeneration()
     {
         var DecoratedWeaponList = new List<(IEntity, int)> {
-            (new Monster("Utopian", 'U', ConsoleColor.Blue, 4, 10, 5, new TimidBehavior(_gameState)), 2),
-            (new Monster("Crab", '\u2340', ConsoleColor.Blue, 24, 34, 8, new AggressiveBehavior(_gameState)), 2),
+            (new Monster("Utopian", 'U', ConsoleColor.Blue, 2, 10, 5, new TimidBehavior(_gameState)), 2),
+            (new Monster("Crab", '\u2340', ConsoleColor.Blue, 8, 20, 8, new AggressiveBehavior(_gameState)), 2),
         };
         int attempts = 999;
         int deployedItems = -1;

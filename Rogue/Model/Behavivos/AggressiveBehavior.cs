@@ -21,9 +21,17 @@ public class AggressiveBehavior : IBehavior
     {
         Point monsterPoint = GameState.EntityManager.GetEntityPosition(monster);
         Point bestPoint = monsterPoint;
-        var currentDistance = NearestPlayerDistance(monsterPoint);
+        var (currentDistance, player) = NearestPlayerDistance2(monsterPoint);
         if (currentDistance > 10)
         {
+            return null;
+        }
+        if(currentDistance == 1)
+        {
+            if(player != null)
+            {
+            player!.Stats.Health--;
+            }
             return null;
         }
 
@@ -40,7 +48,7 @@ public class AggressiveBehavior : IBehavior
                 {
                     continue;
                 }
-                var possibleDistance = NearestPlayerDistance(possiblePoint);
+                var (possibleDistance, _) = NearestPlayerDistance2(possiblePoint);
                 if (possibleDistance < currentDistance)
                 {
                     bestPoint = possiblePoint;
@@ -53,14 +61,19 @@ public class AggressiveBehavior : IBehavior
     {
         return Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
     }
-    private double NearestPlayerDistance(Point possibleMonsterPosition)
+    private (double, Player?) NearestPlayerDistance2(Point possibleMonsterPosition)
     {
         double minDistance = double.MaxValue;
+        Player? minPlayer = null;
         foreach (var (nr, player) in GameState.Players)
         {
             var distanceToPlayer = distance(GameState.EntityManager.GetEntityPosition(player), possibleMonsterPosition);
-            minDistance = distanceToPlayer < minDistance ? distanceToPlayer : minDistance;
+            if( distanceToPlayer < minDistance )
+            {
+                minDistance = distanceToPlayer;
+                minPlayer = player;
+            }
         }
-        return minDistance;
+        return (minDistance, minPlayer);
     }
 }
